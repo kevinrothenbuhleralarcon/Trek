@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/startFragment">
+
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="ch.kra.trek.ui.StartFragment"
+        android:label=""
+        tools:layout="@layout/fragment_start" >
+        <action
+            android:id="@+id/action_startFragment_to_loadTrekFragment"
+            app:destination="@id/loadTrekFragment" />
+        <action
+            android:id="@+id/action_startFragment_to_trekFragment"
+            app:destination="@id/trekFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loadTrekFragment"
+        android:name="ch.kra.trek.ui.LoadTrekFragment"
+        android:label="LoadTrekFragment"
+        tools:layout="@layout/fragment_load_trek">
+        <action
+            android:id="@+id/action_loadTrekFragment_to_trekInfoFragment"
+            app:destination="@id/trekInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trekInfoFragment"
+        android:name="ch.kra.trek.ui.TrekInfoFragment"
+        android:label="TrekInfoFragment"
+        tools:layout="@layout/fragment_trek_info">
+        <action
+            android:id="@+id/action_trekInfoFragment_to_loadTrekFragment"
+            app:destination="@id/loadTrekFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trekFragment"
+        android:name="ch.kra.trek.ui.TrekFragment"
+        android:label="TrekFragment"
+        tools:layout="@layout/fragment_trek">
+        <action
+            android:id="@+id/action_trekFragment_to_trekInfoFragment"
+            app:destination="@id/trekInfoFragment" />
+    </fragment>
+</navigation>

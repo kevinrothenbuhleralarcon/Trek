@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Trek</string>
+    <string name="btn_start_trek_text">Start new trek</string>
+    <string name="btn_load_trek_text">Load trek</string>
+    <string name="btn_save_trek_text">Save trek</string>
+    <string name="btn_delete_trek_text">Delete Trek</string>
+    <string name="btn_start_pause_start_text">Start</string>
+    <string name="btn_start_pause_pause_text">Pause</string>
+    <string name="btn_end_trek">End trek</string>
+    <string name="lbl_time_header_text">Time:</string>
+    <string name="lbl_km_header_text">Km:</string>
+    <string name="lbl_max_drop_text">Maximum drop:</string>
+    <string name="lbl_total_drop_text">Total drop:</string>
+</resources>
