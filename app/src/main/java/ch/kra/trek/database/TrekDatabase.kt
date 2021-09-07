@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Trek::class, Coordinate::class], version = 1)
+@Database(entities = [TrekData::class, Coordinate::class], version = 4)
 abstract class TrekDatabase: RoomDatabase() {
     abstract fun trekDao(): TrekDao
 

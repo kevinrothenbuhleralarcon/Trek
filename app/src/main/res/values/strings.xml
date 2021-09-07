@@ -11,4 +11,19 @@
     <string name="lbl_km_header_text">Km:</string>
     <string name="lbl_max_drop_text">Maximum drop:</string>
     <string name="lbl_total_drop_text">Total drop:</string>
+    <string name="dialog_permission_location_title">Permission</string>
+    <string name="dialog_permission_location_message">This part of the app require access to the GPS is order to display the path of the trek</string>
+    <string name="dialog_permission_location_btn_neutral_text">Ok</string>
+    <string name="dialog_gps_disable_title">GPS off</string>
+    <string name="dialog_gps_disable_message">This part of the app require that the GPS is turned on in order to display the path of the trek.\nPlease turn it on prior to continue</string>
+    <string name="dialog_gps_disable_btn_neutral_text">Ok</string>
+    <string name="dialog_delete_title">Delete</string>
+    <string name="dialog_delete_message">You are about to delete the currently displayed trek. This action is irreversible.\nAre you sure you want to proceed? </string>
+    <string name="dialog_delete_btn_positive_text">Yes</string>
+    <string name="dialog_delete_btn_negative_text">No</string>
+    <string name="dialog_save_title">Save trek</string>
+    <string name="dialog_save_message">Please enter the name under which you want to save the trek</string>
+    <string name="dialog_save_btn_positive_text">Ok</string>
+    <string name="dialog_save_btn_negative_text">Cancel</string>
+    <string name="toast_save">The trek name cannot be empty</string>
 </resources>

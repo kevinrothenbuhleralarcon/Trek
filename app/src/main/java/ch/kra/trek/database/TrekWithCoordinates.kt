@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class TrekWithCoordinates(
-    @Embedded val trek: Trek,
+    @Embedded val trekData: TrekData,
     @Relation(
         parentColumn = "id",
         entityColumn = "trek_id"

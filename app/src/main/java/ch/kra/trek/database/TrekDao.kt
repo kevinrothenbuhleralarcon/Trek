@@ -5,23 +5,22 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrekDao {
-    @Query("SELECT * FROM trek")
-    fun getAllTrek(): Flow<List<Trek>>
+    @Query("SELECT * FROM trekData")
+    fun getAllTrek(): Flow<List<TrekData>>
 
     @Transaction
-    @Query("SELECT * FROM trek WHERE id = :trekId")
-    fun getTrekWithCoordinates(trekId: Int): Flow<TrekWithCoordinates>
+    @Query("SELECT * FROM trekData WHERE id = :trekId")
+    suspend fun getTrekWithCoordinates(trekId: Int): TrekWithCoordinates
 
-    /*@Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTrekWithCoordinates(trek: Trek, listCoordinate: List<Coordinate>)*/
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTrek(trek: Trek): Long
+    suspend fun insertTrekData(trekData: TrekData): Long
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCoordonates(listCoordinate: List<Coordinate>)
+    suspend fun insertCoordonate(coordinate: Coordinate)
 
     @Transaction
     @Delete
-    suspend fun deleteTrekWithCoordinates(trek: Trek, listCoordinates: List<Coordinate>)
+    suspend fun deleteTrekWithCoordinates(trekData: TrekData, listCoordinates: List<Coordinate>)
 }

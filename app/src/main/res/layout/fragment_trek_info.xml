@@ -4,13 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable
-            name="viewModel"
-            type="ch.kra.trek.viewmodel.TrekViewModel" />
 
-        <variable
-            name="trekInfoFragment"
-            type="ch.kra.trek.ui.TrekInfoFragment" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -19,11 +13,13 @@
         android:orientation="vertical"
         android:layout_margin="8dp">
 
-        <TextView
+        <fragment
+            android:id="@+id/map_detail"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:text="TO BE REPLACED BY MAP"
-            android:layout_weight="0.5"/>
+            android:layout_weight="0.5"
+            tools:context=".ui.TrekInfoFragment" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -44,7 +40,6 @@
                 android:id="@+id/lbl_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{Long.toString(viewModel.trekWithCoordinates.trek.time)}"
                 app:layout_constraintTop_toBottomOf="@id/lbl_time_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +65,6 @@
                 android:id="@+id/lbl_km"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{Double.toString(viewModel.trekWithCoordinates.trek.km)}"
                 app:layout_constraintTop_toBottomOf="@id/lbl_km_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -96,7 +90,6 @@
                 android:id="@+id/lbl_max_drop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{Double.toString(viewModel.trekWithCoordinates.trek.maxDrop)}"
                 app:layout_constraintTop_toBottomOf="@id/lbl_max_drop_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -122,7 +115,6 @@
                 android:id="@+id/lbl_total_drop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{Double.toString(viewModel.trekWithCoordinates.trek.totalDrop)}"
                 app:layout_constraintTop_toBottomOf="@id/lbl_total_drop_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -136,35 +128,14 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <Button
-                android:id="@+id/btn_save_trek"
+                android:id="@+id/btn_save_delete_trek"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/btn_save_trek_text"
-                android:onClick="@{() -> trekInfoFragment.saveTrek()}"
                 app:layout_constraintTop_toBottomOf="@id/divider_total_drop"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <Button
-                android:id="@+id/btn_delete_trek"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/btn_delete_trek_text"
-                android:onClick="@{() -> trekInfoFragment.deleteTrek()}"
-                app:layout_constraintTop_toBottomOf="@id/btn_save_trek"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/lbl_coordinates"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.trekWithCoordinates.coordinates.toString()}"
-                app:layout_constraintTop_toBottomOf="@id/btn_delete_trek"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="@string/btn_save_trek_text"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>

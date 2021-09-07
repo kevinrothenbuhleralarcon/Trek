@@ -37,7 +37,7 @@ class LoadTrekFragment : Fragment() {
         val adapter = LoadTrekAdapter(this::displayTrek)
         binding.recyclerTrekList.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerTrekList.adapter = adapter
-        viewModel.trekList.observe(this.viewLifecycleOwner) { listTrek ->
+        viewModel.trekDataList.observe(this.viewLifecycleOwner) { listTrek ->
             listTrek.let {
                 adapter.submitList(it)
             }
@@ -50,8 +50,7 @@ class LoadTrekFragment : Fragment() {
     }
 
     fun displayTrek(trekId: Int){
-        viewModel.setTrekToLoad(trekId)
-        val action = LoadTrekFragmentDirections.actionLoadTrekFragmentToTrekInfoFragment()
+        val action = LoadTrekFragmentDirections.actionLoadTrekFragmentToTrekInfoFragment(trekId)
         findNavController().navigate(action)
     }
 }

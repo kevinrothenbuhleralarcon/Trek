@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Trek(
+data class TrekData(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @NonNull @ColumnInfo(name = "trek_name") val trekName: String,
     @NonNull @ColumnInfo val time: Long,

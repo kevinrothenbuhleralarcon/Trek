@@ -5,26 +5,26 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import ch.kra.trek.database.Trek
+import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.TrekListItemBinding
 
-class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<Trek, LoadTrekAdapter.LoadTrekViewHolder>(DiffCallBack) {
+class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, LoadTrekAdapter.LoadTrekViewHolder>(DiffCallBack) {
 
     companion object {
-        private val DiffCallBack = object: DiffUtil.ItemCallback<Trek>() {
-            override fun areItemsTheSame(oldItem: Trek, newItem: Trek): Boolean {
+        private val DiffCallBack = object: DiffUtil.ItemCallback<TrekData>() {
+            override fun areItemsTheSame(oldItem: TrekData, newItem: TrekData): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: Trek, newItem: Trek): Boolean {
+            override fun areContentsTheSame(oldItem: TrekData, newItem: TrekData): Boolean {
                 return oldItem == newItem
             }
         }
     }
 
     class LoadTrekViewHolder(val binding: TrekListItemBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(trek: Trek) {
-            binding.trek = trek
+        fun bind(trekData: TrekData) {
+            binding.trek = trekData
         }
     }
 

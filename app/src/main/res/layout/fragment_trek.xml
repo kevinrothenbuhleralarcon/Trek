@@ -42,6 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:layout_marginStart="4dp"
+                android:onClick="@{() -> trekFragment.endTrek()}"
                 android:text="@string/btn_end_trek"/>
         </LinearLayout>
     </LinearLayout>

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="trek"
-            type="ch.kra.trek.database.Trek" />
+            type="ch.kra.trek.database.TrekData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
