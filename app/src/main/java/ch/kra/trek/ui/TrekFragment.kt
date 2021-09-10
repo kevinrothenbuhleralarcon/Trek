@@ -3,12 +3,15 @@ package ch.kra.trek.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -54,18 +58,42 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private lateinit var mMap: GoogleMap
-
-    private var _binding: FragmentTrekBinding? = null
-    private val binding get() = _binding!!
-
     private val viewModel: TrekViewModel by activityViewModels {
         TrekViewModel.TrekViewModelFactory((activity?.application as TrekApplication).database.trekDao())
     }
 
     private lateinit var locationManager: LocationManager
+    private lateinit var lineRoute: Polyline
+    private lateinit var mMap: GoogleMap
+    private var isLocationRequestEnabled = false
+    private var _binding: FragmentTrekBinding? = null
+    private val binding get() = _binding!!
 
-    private val polylineOption = PolylineOptions().clickable(false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true) // in order to be able to catch the navigate up button
+
+        //what to do if the user try to navigate back
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_back_title))
+                .setMessage(getString(R.string.dialog_back_message))
+                .setPositiveButton(getString(R.string.dialog_back_btn_positive_text)) { _, _ ->
+                    this.remove() //remove this callback as we need to perform the backPressed action
+                    requireActivity().onBackPressed() //call the back pressed action again
+                }
+                .setNegativeButton(R.string.dialog_back_btn_negative_text) { _, _ -> }
+                .show()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            requireActivity().onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,10 +113,19 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         viewModel.trekCoordinates.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                polylineOption.add(it.last()) //add the point to the polyline in order for the path to be drown on the map
+                lineRoute.points = it //add the new list of points
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(it.last())) //center the camera to the last coordinate
             }
         }
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+
+    override fun onPause() {
+        super.onPause()
+        /*if (isLocationRequestEnabled &&
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locationManager.removeUpdates(viewModel)
+        }*/
     }
 
     override fun onDestroy() {
@@ -98,7 +135,8 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mMap.addPolyline(polylineOption)
+        val polylineOption = PolylineOptions().clickable(false)
+        lineRoute = mMap.addPolyline(polylineOption)
         setMapDefaultLocation()
     }
 
@@ -110,6 +148,7 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
             //Action if the permission is already granted
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //check if the GPS is active
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, viewModel) //start receiving new location update, trigger is on the viewModel
+
                 viewModel.startTrek()
                 binding.btnStartPause.isEnabled = false
             } else {

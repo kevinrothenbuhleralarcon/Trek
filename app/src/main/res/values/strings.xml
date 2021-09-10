@@ -26,4 +26,8 @@
     <string name="dialog_save_btn_positive_text">Ok</string>
     <string name="dialog_save_btn_negative_text">Cancel</string>
     <string name="toast_save">The trek name cannot be empty</string>
+    <string name="dialog_back_title">Trek is running</string>
+    <string name="dialog_back_message">Trek is currently running if you go back it will be cancelled.\nAre you sure you want to continue?</string>
+    <string name="dialog_back_btn_positive_text">Yes</string>
+    <string name="dialog_back_btn_negative_text">No</string>
 </resources>
