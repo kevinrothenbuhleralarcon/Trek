@@ -5,8 +5,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -23,6 +25,8 @@ import ch.kra.trek.R
 import ch.kra.trek.database.TrekApplication
 import ch.kra.trek.databinding.FragmentTrekBinding
 import ch.kra.trek.viewmodel.TrekViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -63,6 +67,7 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
     }
 
     private lateinit var locationManager: LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lineRoute: Polyline
     private lateinit var mMap: GoogleMap
     private var isLocationRequestEnabled = false
@@ -110,7 +115,9 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         mapFragment?.getMapAsync(this)
         binding.btnStartPause.text = getString(R.string.btn_start_pause_start_text)
         binding.trekFragment = this
-        locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        //locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
         viewModel.trekCoordinates.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 lineRoute.points = it //add the new list of points
@@ -193,17 +200,21 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission") //Warning suppressed because permission is set in the Manifest and for some reason is still ask for it to be added in the Manifest
     private fun setMapDefaultLocation() {
-        val locationToDisplay: LatLng
         val lausanne = LatLng(46.516, 6.63282)
+        var locationToDisplay: LatLng
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //Action if the permission is already granted
-            locationToDisplay = if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //Check if the GPS is active
-                val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                if (lastKnownLocation != null) {
-                    LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
-                } else {
-                    lausanne
+            val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //Check if the GPS is active
+               Log.d("loc", "enabled")
+                //val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                    locationToDisplay = if (location != null) {
+                        LatLng(location.latitude, location.longitude)
+                    } else {
+                        lausanne
+                    }
                 }
             } else {
                 MaterialAlertDialogBuilder(requireContext())
@@ -211,7 +222,7 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
                     .setMessage(getString(R.string.dialog_gps_disable_message))
                     .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _, _ -> }
                     .show()
-                lausanne
+               locationToDisplay = lausanne
             }
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
             ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
