@@ -19,13 +19,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            tools:context=".ui.TrekInfoFragment" />
+            tools:context=".ui.fragments.TrekInfoFragment" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            tools:context=".ui.TrekInfoFragment">
+            tools:context=".ui.fragments.TrekInfoFragment">
 
             <TextView
                 android:id="@+id/lbl_time_header"

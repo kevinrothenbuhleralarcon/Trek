@@ -1,4 +1,4 @@
-package ch.kra.trek.ui
+package ch.kra.trek.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,10 +10,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import ch.kra.trek.R
-import ch.kra.trek.adapter.LoadTrekAdapter
-import ch.kra.trek.database.TrekApplication
+import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentLoadTrekBinding
-import ch.kra.trek.viewmodel.TrekViewModel
+import ch.kra.trek.ui.adapter.LoadTrekAdapter
+import ch.kra.trek.ui.viewmodels.TrekViewModel
 
 class LoadTrekFragment : Fragment() {
 

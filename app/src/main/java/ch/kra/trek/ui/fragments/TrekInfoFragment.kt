@@ -1,4 +1,4 @@
-package ch.kra.trek.ui
+package ch.kra.trek.ui.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -14,10 +14,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ch.kra.trek.R
-import ch.kra.trek.database.TrekApplication
+import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentTrekInfoBinding
 import ch.kra.trek.helper.Trek
-import ch.kra.trek.viewmodel.TrekViewModel
+import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback

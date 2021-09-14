@@ -1,4 +1,4 @@
-package ch.kra.trek.ui
+package ch.kra.trek.ui.fragments
 
 import android.Manifest
 import android.content.Context
@@ -59,6 +59,7 @@ class StartFragment : Fragment() {
         findNavController().navigate(action)
     }
 
+
     fun startNewTrek() {
         //before we can start a new trek we have to check the permission
         if (isLocationPermissionGranted()) {
@@ -75,6 +76,31 @@ class StartFragment : Fragment() {
             }
         }
     }
+
+    /*private fun requestPermission() {
+        if (TrackingUtility.hasLocationPermission(requireContext())) {
+            return
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            EasyPermissions.requestPermissions(
+                this,
+                "This app needs location permission in order track the trek.",
+                REQUEST_CODE_LOCATION_PERMISSION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        } else {
+            EasyPermissions.requestPermissions(
+                this,
+                "This app needs location permission in order track the trek.",
+                REQUEST_CODE_LOCATION_PERMISSION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        }
+    }*/
+
 
     private fun isLocationPermissionGranted(): Boolean {
         return when {

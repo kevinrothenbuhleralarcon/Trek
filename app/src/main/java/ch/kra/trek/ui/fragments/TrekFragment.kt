@@ -1,8 +1,9 @@
-package ch.kra.trek.ui
+package ch.kra.trek.ui.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.location.Location
@@ -22,21 +23,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import ch.kra.trek.R
-import ch.kra.trek.database.TrekApplication
+import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentTrekBinding
-import ch.kra.trek.viewmodel.TrekViewModel
+import ch.kra.trek.other.Constants.ACTION_START_SERVICE
+import ch.kra.trek.services.TrackingService
+import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class TrekFragment : Fragment(), OnMapReadyCallback {
+class TrekFragment : Fragment() {
 
     private val setMapRequestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (it[Manifest.permission.ACCESS_FINE_LOCATION] == true || it[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
@@ -69,7 +70,8 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locationManager: LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lineRoute: Polyline
-    private lateinit var mMap: GoogleMap
+    private var _map: GoogleMap? = null
+    private val map get() = _map!!
     private var isLocationRequestEnabled = false
     private var _binding: FragmentTrekBinding? = null
     private val binding get() = _binding!!
@@ -79,7 +81,7 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         setHasOptionsMenu(true) // in order to be able to catch the navigate up button
 
         //what to do if the user try to navigate back
-        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_back_title))
                 .setMessage(getString(R.string.dialog_back_message))
@@ -90,14 +92,6 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
                 .setNegativeButton(R.string.dialog_back_btn_negative_text) { _, _ -> }
                 .show()
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            requireActivity().onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreateView(
@@ -111,9 +105,17 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(this)
-        binding.btnStartPause.text = getString(R.string.btn_start_pause_start_text)
+        //val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        //mapFragment?.getMapAsync(this)
+
+        binding.mapView.onCreate(savedInstanceState)
+        binding.mapView.getMapAsync {
+            _map = it
+            initMap()
+        }
+        binding.btnStart.setOnClickListener {
+            sendCommandToService(ACTION_START_SERVICE)
+        }
         binding.trekFragment = this
         //locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -121,30 +123,58 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         viewModel.trekCoordinates.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 lineRoute.points = it //add the new list of points
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(it.last())) //center the camera to the last coordinate
+                map.moveCamera(CameraUpdateFactory.newLatLng(it.last())) //center the camera to the last coordinate
             }
         }
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.mapView.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        binding.mapView.onStop()
+    }
+
     override fun onPause() {
         super.onPause()
+        binding.mapView.onPause()
         /*if (isLocationRequestEnabled &&
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             locationManager.removeUpdates(viewModel)
         }*/
     }
 
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        binding.mapView.onDestroy()
         _binding = null
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        val polylineOption = PolylineOptions().clickable(false)
-        lineRoute = mMap.addPolyline(polylineOption)
-        setMapDefaultLocation()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.mapView.onSaveInstanceState(outState)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            requireActivity().onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     @SuppressLint("MissingPermission") //Warning suppressed because permission is set in the Manifest and for some reason is still ask for it to be added in the Manifest
@@ -157,7 +187,7 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, viewModel) //start receiving new location update, trigger is on the viewModel
 
                 viewModel.startTrek()
-                binding.btnStartPause.isEnabled = false
+                binding.btnStart.isEnabled = false
             } else {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_gps_disable_title))
@@ -196,6 +226,12 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
         viewModel.endTrek()
         val action = TrekFragmentDirections.actionTrekFragmentToTrekInfoFragment(0)
         findNavController().navigate(action)
+    }
+
+    private fun initMap() {
+        val polylineOption = PolylineOptions().clickable(false)
+        lineRoute = map.addPolyline(polylineOption)
+        setMapDefaultLocation()
     }
 
     @SuppressLint("MissingPermission") //Warning suppressed because permission is set in the Manifest and for some reason is still ask for it to be added in the Manifest
@@ -250,8 +286,14 @@ class TrekFragment : Fragment(), OnMapReadyCallback {
             )
             locationToDisplay = lausanne
         }
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(lausanne))
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(15f))
-        mMap.isMyLocationEnabled = true
+        map.moveCamera(CameraUpdateFactory.newLatLng(lausanne))
+        map.moveCamera(CameraUpdateFactory.zoomTo(15f))
+        map.isMyLocationEnabled = true
     }
+
+    private fun sendCommandToService(action: String) =
+        Intent(requireContext(), TrackingService::class.java).also {
+            it.action = action
+            requireContext().startService(it)
+        }
 }

@@ -5,9 +5,13 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/startFragment">
 
+    <action android:id="@+id/action_global_trekFragment"
+        app:destination="@id/trekFragment"
+        app:launchSingleTop="true" />
+
     <fragment
         android:id="@+id/startFragment"
-        android:name="ch.kra.trek.ui.StartFragment"
+        android:name="ch.kra.trek.ui.fragments.StartFragment"
         android:label=""
         tools:layout="@layout/fragment_start" >
         <action
@@ -19,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/loadTrekFragment"
-        android:name="ch.kra.trek.ui.LoadTrekFragment"
+        android:name="ch.kra.trek.ui.fragments.LoadTrekFragment"
         android:label="LoadTrekFragment"
         tools:layout="@layout/fragment_load_trek">
         <action
@@ -28,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/trekInfoFragment"
-        android:name="ch.kra.trek.ui.TrekInfoFragment"
+        android:name="ch.kra.trek.ui.fragments.TrekInfoFragment"
         android:label="TrekInfoFragment"
         tools:layout="@layout/fragment_trek_info">
         <action
@@ -42,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/trekFragment"
-        android:name="ch.kra.trek.ui.TrekFragment"
+        android:name="ch.kra.trek.ui.fragments.TrekFragment"
         android:label="TrekFragment"
         tools:layout="@layout/fragment_trek">
         <action

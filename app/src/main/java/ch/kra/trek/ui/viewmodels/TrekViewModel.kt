@@ -1,4 +1,4 @@
-package ch.kra.trek.viewmodel
+package ch.kra.trek.ui.viewmodels
 
 import android.location.Location
 import android.location.LocationListener

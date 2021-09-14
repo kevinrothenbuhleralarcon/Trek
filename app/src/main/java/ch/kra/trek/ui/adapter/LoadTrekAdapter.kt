@@ -1,4 +1,4 @@
-package ch.kra.trek.adapter
+package ch.kra.trek.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.TrekListItemBinding
 
-class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, LoadTrekAdapter.LoadTrekViewHolder>(DiffCallBack) {
+class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, LoadTrekAdapter.LoadTrekViewHolder>(
+    DiffCallBack
+) {
 
     companion object {
         private val DiffCallBack = object: DiffUtil.ItemCallback<TrekData>() {

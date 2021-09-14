@@ -5,14 +5,14 @@
     <data>
         <variable
             name="startFragment"
-            type="ch.kra.trek.ui.StartFragment" />
+            type="ch.kra.trek.ui.fragments.StartFragment" />
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".ui.StartFragment">
+        tools:context=".ui.fragments.StartFragment">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_start_fragment"
