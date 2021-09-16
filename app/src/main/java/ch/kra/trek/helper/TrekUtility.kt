@@ -1,35 +1,21 @@
 package ch.kra.trek.helper
 
-import android.location.Location
+import ch.kra.trek.other.Constants.EARTH_RADIUS
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.*
 
-class TrekManager() {
-    private val EARTH_RADIUS = 6367445
-    private val _listCoordinate = mutableListOf<LatLng>()
-    val listCoordinate: List<LatLng> get() = _listCoordinate
-    private val listAltitude = mutableListOf<Double>()
-    private val chrono = Chrono() //initiating the chrono will start it
+object TrekUtility {
+
     private var maxPositiveDrop = 0.0
     private var totalDrop = 0.0
 
-    fun newLocation(location: Location) {
-        _listCoordinate.add(LatLng(location.latitude, location.longitude))
-        listAltitude.add(location.altitude)
+    fun getTrek(pathPoints: List<LatLng>, altitudes: List<Double>, timeInMs: Long, trekName: String): Trek {
+        calculateDrops(altitudes)
+        val km = getKm(pathPoints)
+        return Trek(trekName = trekName, time = timeInMs, km = km, maxDrop = maxPositiveDrop, totalDrop = totalDrop, listLatLng = pathPoints)
     }
 
-    fun stop() {
-        chrono.stop()
-    }
-
-    fun getTrek(): Trek {
-        calculateDrops()
-        val km = getKm()
-        val time = chrono.deltaTime()
-        return Trek(time = time, km = km, maxDrop = maxPositiveDrop, totalDrop = totalDrop, listLatLng = listCoordinate)
-    }
-
-    private fun getKm(): Double {
+    private fun getKm(listCoordinate: List<LatLng>): Double {
         var total: Double = 0.0
         var lastLatLng: LatLng? = null
 
@@ -47,7 +33,7 @@ class TrekManager() {
         return total
     }
 
-    private fun calculateDrops() {
+    private fun calculateDrops(listAltitude: List<Double>) {
         //altitude set as 10 km as we cannot be at an altitude on 10 km on foot
         var lastAltitude = 10000.0
         var firstAltitude = 10000.0

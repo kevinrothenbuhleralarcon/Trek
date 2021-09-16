@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,9 +23,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class StartFragment : Fragment() {
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        Log.d("permission", "Value of fine : ${it[Manifest.permission.ACCESS_FINE_LOCATION].toString()}")
+        Log.d("permission", "Value of coarsa : ${it[Manifest.permission.ACCESS_COARSE_LOCATION].toString()}")
+        Log.d("permission", "Value of background : ${it[Manifest.permission.ACCESS_BACKGROUND_LOCATION].toString()}")
         if (it[Manifest.permission.ACCESS_FINE_LOCATION] == true || it[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
             startNewTrek()
         } else {
+            Log.d("permission", "launcher denied")
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.dialog_permission_location_title))
                 .setMessage(getString(R.string.dialog_permission_location_message))
@@ -77,32 +83,10 @@ class StartFragment : Fragment() {
         }
     }
 
-    /*private fun requestPermission() {
-        if (TrackingUtility.hasLocationPermission(requireContext())) {
-            return
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            EasyPermissions.requestPermissions(
-                this,
-                "This app needs location permission in order track the trek.",
-                REQUEST_CODE_LOCATION_PERMISSION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        } else {
-            EasyPermissions.requestPermissions(
-                this,
-                "This app needs location permission in order track the trek.",
-                REQUEST_CODE_LOCATION_PERMISSION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            )
-        }
-    }*/
-
-
     private fun isLocationPermissionGranted(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            Log.d("permission", "Less than Q")
+        }
         return when {
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED-> {
@@ -120,7 +104,8 @@ class StartFragment : Fragment() {
                         requestPermissionLauncher.launch(
                             arrayOf(
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
                             )
                         )
                     }
@@ -133,7 +118,7 @@ class StartFragment : Fragment() {
                 requestPermissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
                     )
                 )
                 false

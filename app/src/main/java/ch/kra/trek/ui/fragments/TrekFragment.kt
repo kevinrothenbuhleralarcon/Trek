@@ -2,22 +2,14 @@ package ch.kra.trek.ui.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -26,10 +18,12 @@ import ch.kra.trek.R
 import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentTrekBinding
 import ch.kra.trek.other.Constants.ACTION_START_SERVICE
+import ch.kra.trek.other.Constants.ACTION_STOP_SERVICE
+import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
+import ch.kra.trek.other.Constants.POLYLINE_COLOR
+import ch.kra.trek.other.Constants.POLYLINE_WIDTH
 import ch.kra.trek.services.TrackingService
 import ch.kra.trek.ui.viewmodels.TrekViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
@@ -38,18 +32,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class TrekFragment : Fragment() {
-
-    private val setMapRequestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        if (it[Manifest.permission.ACCESS_FINE_LOCATION] == true || it[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-            setMapDefaultLocation()
-        } else {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_permission_location_title))
-                .setMessage(getString(R.string.dialog_permission_location_message))
-                .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ -> }
-                .show()
-        }
-    }
 
     private val startNewTrekRequestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (it[Manifest.permission.ACCESS_FINE_LOCATION] == true || it[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
@@ -67,32 +49,16 @@ class TrekFragment : Fragment() {
         TrekViewModel.TrekViewModelFactory((activity?.application as TrekApplication).database.trekDao())
     }
 
-    private lateinit var locationManager: LocationManager
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var lineRoute: Polyline
-    private var _map: GoogleMap? = null
-    private val map get() = _map!!
-    private var isLocationRequestEnabled = false
+    private var map: GoogleMap? = null
+
     private var _binding: FragmentTrekBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true) // in order to be able to catch the navigate up button
-
-        //what to do if the user try to navigate back
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_back_title))
-                .setMessage(getString(R.string.dialog_back_message))
-                .setPositiveButton(getString(R.string.dialog_back_btn_positive_text)) { _, _ ->
-                    this.remove() //remove this callback as we need to perform the backPressed action
-                    requireActivity().onBackPressed() //call the back pressed action again
-                }
-                .setNegativeButton(R.string.dialog_back_btn_negative_text) { _, _ -> }
-                .show()
-        }
-    }
+    private var isTracking = false
+    private var pathPoints = mutableListOf<LatLng>()
+    private var altitudes = mutableListOf<Double>()
+    private var timeInMs = 0L
+    private var polyLine: Polyline? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -103,192 +69,115 @@ class TrekFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        //mapFragment?.getMapAsync(this)
-
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync {
-            _map = it
-            initMap()
+            map = it
+            map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            map?.isMyLocationEnabled = true
         }
-        binding.btnStart.setOnClickListener {
-            sendCommandToService(ACTION_START_SERVICE)
-        }
-        binding.trekFragment = this
-        //locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-
-        viewModel.trekCoordinates.observe(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                lineRoute.points = it //add the new list of points
-                map.moveCamera(CameraUpdateFactory.newLatLng(it.last())) //center the camera to the last coordinate
-            }
-        }
+        subscribeToObservers()
+        setButtonOnClickListener()
+        setInitialButtonVisibility()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     override fun onResume() {
         super.onResume()
+        Log.d("trek", "onResume")
         binding.mapView.onResume()
     }
 
     override fun onStart() {
         super.onStart()
+        Log.d("trek", "onStart")
         binding.mapView.onStart()
     }
 
     override fun onStop() {
         super.onStop()
+        Log.d("trek", "onStop")
         binding.mapView.onStop()
     }
 
     override fun onPause() {
         super.onPause()
+        Log.d("trek", "onPause")
         binding.mapView.onPause()
-        /*if (isLocationRequestEnabled &&
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            locationManager.removeUpdates(viewModel)
-        }*/
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
+        Log.d("trek", "onLowMemory")
         binding.mapView.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("trek", "onDestroy")
         binding.mapView.onDestroy()
         _binding = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        Log.d("trek", "onSaveInstanceState")
         binding.mapView.onSaveInstanceState(outState)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            requireActivity().onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+    private fun setButtonOnClickListener(){
+        binding.btnStart.setOnClickListener { startNewTrek() }
+        binding.btnEndTrek.setOnClickListener { endTrek() }
     }
 
-    @SuppressLint("MissingPermission") //Warning suppressed because permission is set in the Manifest and for some reason is still ask for it to be added in the Manifest
-    fun startNewTrek() {
-        //check if the permission is already given
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //Action if the permission is already granted
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //check if the GPS is active
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, viewModel) //start receiving new location update, trigger is on the viewModel
+    private fun setInitialButtonVisibility() {
+        binding.btnStart.visibility = View.VISIBLE
+        binding.btnEndTrek.visibility = View.GONE
+    }
 
-                viewModel.startTrek()
-                binding.btnStart.isEnabled = false
-            } else {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_gps_disable_title))
-                    .setMessage(getString(R.string.dialog_gps_disable_message))
-                    .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _, _ -> }
-                    .show()
-            }
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
-            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-            //Action if the app need think it need to show the request permission radial
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_permission_location_title))
-                .setMessage(getString(R.string.dialog_permission_location_message))
-                .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ ->
-                    startNewTrekRequestPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                    )
-                }
-                .show()
+    private fun updateTracking(isTracking: Boolean) {
+        this.isTracking = isTracking
+        if (isTracking) {
+            binding.btnStart.visibility = View.GONE
+            binding.btnEndTrek.visibility = View.VISIBLE
         } else {
-            //action if the permission hasn't been asked yet
-            startNewTrekRequestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
+            binding.btnStart.visibility = View.VISIBLE
+            binding.btnEndTrek.visibility = View.GONE
         }
     }
 
-    fun endTrek() {
-        locationManager.removeUpdates(viewModel) //stop getting new location
-        viewModel.endTrek()
+    private fun startNewTrek() {
+        sendCommandToService(ACTION_START_SERVICE)
+    }
+
+    private fun endTrek() {
+        sendCommandToService(ACTION_STOP_SERVICE)
+        viewModel.setCurrentTrekData(pathPoints, altitudes, timeInMs, getString(R.string.default_new_trek_name))
         val action = TrekFragmentDirections.actionTrekFragmentToTrekInfoFragment(0)
         findNavController().navigate(action)
     }
 
-    private fun initMap() {
-        val polylineOption = PolylineOptions().clickable(false)
-        lineRoute = map.addPolyline(polylineOption)
-        setMapDefaultLocation()
+    private fun addPolyline() {
+        polyLine?.let {
+            it.remove() //remove the old polyline if it exist
+            polyLine = null
+        }
+        if (pathPoints.isNotEmpty()) {
+            val polylineOptions = PolylineOptions()
+                .color(POLYLINE_COLOR)
+                .width(POLYLINE_WIDTH)
+                .clickable(false)
+                .addAll(pathPoints)
+            polyLine = map?.addPolyline(polylineOptions)
+        }
     }
 
-    @SuppressLint("MissingPermission") //Warning suppressed because permission is set in the Manifest and for some reason is still ask for it to be added in the Manifest
-    private fun setMapDefaultLocation() {
-        val lausanne = LatLng(46.516, 6.63282)
-        var locationToDisplay: LatLng
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //Action if the permission is already granted
-            val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //Check if the GPS is active
-               Log.d("loc", "enabled")
-                //val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                    locationToDisplay = if (location != null) {
-                        LatLng(location.latitude, location.longitude)
-                    } else {
-                        lausanne
-                    }
-                }
-            } else {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_gps_disable_title))
-                    .setMessage(getString(R.string.dialog_gps_disable_message))
-                    .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _, _ -> }
-                    .show()
-               locationToDisplay = lausanne
-            }
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
-            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-            //Action if the app need think it need to show the request permission radial
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_permission_location_title))
-                .setMessage(getString(R.string.dialog_permission_location_message))
-                .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ ->
-                    setMapRequestPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                    )
-                }
-                .show()
-            locationToDisplay = lausanne
-        } else {
-            //action if the permission hasn't been asked yet
-            setMapRequestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
-            locationToDisplay = lausanne
+    private fun moveCameraToUser() {
+        if (pathPoints.isNotEmpty()) {
+            map?.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last(), MAP_CAMERA_ZOOM))
         }
-        map.moveCamera(CameraUpdateFactory.newLatLng(lausanne))
-        map.moveCamera(CameraUpdateFactory.zoomTo(15f))
-        map.isMyLocationEnabled = true
     }
 
     private fun sendCommandToService(action: String) =
@@ -296,4 +185,24 @@ class TrekFragment : Fragment() {
             it.action = action
             requireContext().startService(it)
         }
+
+    private fun subscribeToObservers() {
+        TrackingService.pathPoint.observe(viewLifecycleOwner) {
+            pathPoints = it
+            addPolyline()
+            moveCameraToUser()
+        }
+
+        TrackingService.altitudes.observe(viewLifecycleOwner) {
+            altitudes = it
+        }
+
+        TrackingService.timeInMs.observe(viewLifecycleOwner) {
+            timeInMs = it
+        }
+
+        TrackingService.isTracking.observe(viewLifecycleOwner) {
+            updateTracking(it)
+        }
+    }
 }

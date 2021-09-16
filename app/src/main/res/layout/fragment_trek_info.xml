@@ -13,13 +13,11 @@
         android:orientation="vertical"
         android:layout_margin="8dp">
 
-        <fragment
-            android:id="@+id/map_detail"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.5"
-            tools:context=".ui.fragments.TrekInfoFragment" />
+            android:layout_weight="0.5" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

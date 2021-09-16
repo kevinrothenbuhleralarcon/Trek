@@ -25,8 +25,13 @@
     <string name="dialog_save_btn_positive_text">Ok</string>
     <string name="dialog_save_btn_negative_text">Cancel</string>
     <string name="toast_save">The trek name cannot be empty</string>
-    <string name="dialog_back_title">Trek is running</string>
-    <string name="dialog_back_message">Trek is currently running if you go back it will be cancelled.\nAre you sure you want to continue?</string>
-    <string name="dialog_back_btn_positive_text">Yes</string>
-    <string name="dialog_back_btn_negative_text">No</string>
+    <string name="dialog_tracking_back_title">Trek is running</string>
+    <string name="dialog_tracking_back_message">Trek is currently running if you go back it will be cancelled.\nAre you sure you want to continue?</string>
+    <string name="dialog_tracking_back_btn_positive_text">Yes</string>
+    <string name="dialog_tracking_back_btn_negative_text">No</string>
+    <string name="dialog_info_back_title">Trek is unsaved</string>
+    <string name="dialog_info_back_message">The trek currently displayed is unsaved.\nIf you go back without saving it all data will be lost.\n\nAre you sure you want to go back?</string>
+    <string name="dialog_info_back_btn_positive_text">Yes</string>
+    <string name="dialog_info_back_btn_negative_text">No</string>
+    <string name="default_new_trek_name">New Trek</string>
 </resources>
