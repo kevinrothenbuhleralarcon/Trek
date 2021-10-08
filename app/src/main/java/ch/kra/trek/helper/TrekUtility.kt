@@ -1,25 +1,31 @@
 package ch.kra.trek.helper
 
+import ch.kra.trek.database.Coordinate
+import ch.kra.trek.database.TrekData
 import ch.kra.trek.other.Constants.EARTH_RADIUS
 import com.google.android.gms.maps.model.LatLng
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 object TrekUtility {
 
-    private var maxPositiveDrop = 0.0
-    private var totalDrop = 0.0
+    private var totalPositiveDrop = 0.0
+    private var totalNegativeDrop = 0.0
 
-    fun getTrek(pathPoints: List<LatLng>, altitudes: List<Double>, timeInMs: Long, trekName: String): Trek {
-        calculateDrops(altitudes)
-        val km = getKm(pathPoints)
-        return Trek(trekName = trekName, time = timeInMs, km = km, maxDrop = maxPositiveDrop, totalDrop = totalDrop, listLatLng = pathPoints)
+    fun getTrek(coordinates: List<Coordinate>, timeInMs: Long, trekName: String): TrekData {
+        calculateDrops(coordinates)
+        val km = getKm(coordinates)
+        return TrekData(trekName = trekName, time = timeInMs, km = km, totalPositiveDrop = totalPositiveDrop, totalNegativeDrop = totalNegativeDrop, coordinates = coordinates)
     }
 
-    private fun getKm(listCoordinate: List<LatLng>): Double {
+    private fun getKm(coordinates: List<Coordinate>): Double {
         var total: Double = 0.0
         var lastLatLng: LatLng? = null
 
-        for (newLatLng in listCoordinate) {
+        for (location in coordinates) {
+            val newLatLng = LatLng(location.latitude, location.longitude)
             if (lastLatLng != null) {
                 val newLat = newLatLng.latitude * PI / 180
                 val oldLat = lastLatLng.latitude * PI / 180
@@ -33,28 +39,22 @@ object TrekUtility {
         return total
     }
 
-    private fun calculateDrops(listAltitude: List<Double>) {
+    fun calculateDrops(coordinates: List<Coordinate>) {
         //altitude set as 10 km as we cannot be at an altitude on 10 km on foot
-        var lastAltitude = 10000.0
-        var firstAltitude = 10000.0
-        maxPositiveDrop = 0.0
-        totalDrop = 0.0
+        var lastAltitude: Double? = null
+        totalPositiveDrop = 0.0
+        totalNegativeDrop = 0.0
 
-        for (altitude in listAltitude) {
-            //determine the total drop
-            if (lastAltitude != 10000.0) {
-                totalDrop += abs(altitude - lastAltitude)
-            }
-
-            //determine the max drop
-            if (altitude < lastAltitude) { //in this case we're going down so we set this altitude as the new start
-                firstAltitude = altitude
+        for (coordinate in coordinates) {
+            val altitude = coordinate.altitude
+            lastAltitude?.let {
+                if (it < altitude) {
+                    totalPositiveDrop += altitude - it
+                } else if (it > altitude) {
+                    totalNegativeDrop += altitude - it
+                }
             }
             lastAltitude = altitude
-
-            if (lastAltitude - firstAltitude > maxPositiveDrop) {
-                maxPositiveDrop = lastAltitude - firstAltitude
-            }
         }
     }
 }

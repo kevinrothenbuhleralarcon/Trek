@@ -17,8 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ch.kra.trek.R
 import ch.kra.trek.TrekApplication
+import ch.kra.trek.database.Coordinate
+import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.FragmentTrekInfoBinding
-import ch.kra.trek.helper.Trek
 import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
@@ -46,7 +47,7 @@ class TrekInfoFragment : Fragment() {
     }
 
     private var trekId: Int = 0
-    private var trek: Trek? = null
+    private var trek: TrekData? = null
     private var isNewUnsavedTrek: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,28 +196,30 @@ class TrekInfoFragment : Fragment() {
             .show()
     }
 
-    private fun bindData(trek: Trek) {
+    private fun bindData(trek: TrekData) {
         val dateFormat = SimpleDateFormat("HH:mm:ss")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT+0")
-
+        dateFormat.timeZone = TimeZone.getTimeZone("GMT+0") //needed on physical device for a chrono in order that it start at 0
         val decimalFormat = DecimalFormat("0.00")
 
         binding.lblTime.text =dateFormat.format(Date(trek.time))
         binding.lblKm.text = "${decimalFormat.format(trek.km / 1000)} km"
-        binding.lblMaxDrop.text = "${decimalFormat.format(trek.maxDrop)} m"
-        binding.lblTotalDrop.text = "${decimalFormat.format(trek.totalDrop)} m"
-        displayRoad(trek.listLatLng)
+        binding.lblPositiveNegativeDrop.text = "${decimalFormat.format(trek.totalPositiveDrop)} m / ${decimalFormat.format(trek.totalNegativeDrop)} m"
+        binding.lblTotalDrop.text = "${decimalFormat.format(trek.totalPositiveDrop + trek.totalNegativeDrop)} m"
+        displayRoad(trek.coordinates)
     }
 
-    private fun displayRoad(road: List<LatLng>) {
+    private fun displayRoad(road: List<Coordinate>) {
         if (road.isNotEmpty()) {
             val polylineOption = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
                 .clickable(false)
-                .addAll(road)
+            for (coordinate in road)
+            {
+                polylineOption.add(LatLng(coordinate.latitude, coordinate.longitude))
+            }
             map?.addPolyline(polylineOption)
-            map?.animateCamera(CameraUpdateFactory.newLatLngZoom(road.first(), MAP_CAMERA_ZOOM))
+            map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(road.first().latitude, road.first().longitude), MAP_CAMERA_ZOOM))
         }
     }
 

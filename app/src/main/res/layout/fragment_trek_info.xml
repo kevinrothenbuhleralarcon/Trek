@@ -76,7 +76,7 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <TextView
-                android:id="@+id/lbl_max_drop_header"
+                android:id="@+id/lbl_positive_negative_drop_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/lbl_max_drop_text"
@@ -85,18 +85,18 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <TextView
-                android:id="@+id/lbl_max_drop"
+                android:id="@+id/lbl_positive_negative_drop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/lbl_max_drop_header"
+                app:layout_constraintTop_toBottomOf="@id/lbl_positive_negative_drop_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:text="250 m"/>
+                tools:text="250 m / -100m"/>
 
             <View
                 android:id="@+id/divider_max_drop"
                 style="@style/Divider"
-                app:layout_constraintTop_toBottomOf="@id/lbl_max_drop"
+                app:layout_constraintTop_toBottomOf="@id/lbl_positive_negative_drop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -116,7 +116,7 @@
                 app:layout_constraintTop_toBottomOf="@id/lbl_total_drop_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:text="450 m"/>
+                tools:text="150 m"/>
 
             <View
                 android:id="@+id/divider_total_drop"

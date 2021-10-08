@@ -15,7 +15,8 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import ch.kra.trek.R
-import ch.kra.trek.other.Constants
+import ch.kra.trek.database.Coordinate
+import ch.kra.trek.helper.Chrono
 import ch.kra.trek.other.Constants.ACTION_SHOW_TREK_FRAGMENT
 import ch.kra.trek.other.Constants.ACTION_START_SERVICE
 import ch.kra.trek.other.Constants.ACTION_STOP_SERVICE
@@ -23,27 +24,27 @@ import ch.kra.trek.other.Constants.LOCATION_UPDATE_FASTEST_INTERVAL
 import ch.kra.trek.other.Constants.LOCATION_UPDATE_INTERVAL
 import ch.kra.trek.other.Constants.NOTIFICATION_CHANNEL_ID
 import ch.kra.trek.other.Constants.NOTIFICATION_CHANNEL_NAME
+import ch.kra.trek.other.Constants.NOTIFICATION_ID
 import ch.kra.trek.other.TrackingUtility
 import ch.kra.trek.ui.MainActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.maps.model.LatLng
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TrackingService : LifecycleService() {
 
     private var isFirstRun = true
     private var serviceKilled = false
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private var timeStart = 0L
-    private var timeEnd = 0L
+    private lateinit var currentNotificationBuilder : NotificationCompat.Builder
+    private val chrono = Chrono()
 
     companion object {
         val isTracking = MutableLiveData<Boolean>()
-        val pathPoint = MutableLiveData<MutableList<LatLng>>()
-        val altitudes = MutableLiveData<MutableList<Double>>()
+        val coordinates = MutableLiveData<MutableList<Coordinate>>()
         val timeInMs = MutableLiveData<Long>()
     }
 
@@ -53,9 +54,7 @@ class TrackingService : LifecycleService() {
             if (isTracking.value!!) {
                 result?.locations?.let { locations ->
                     for (location in locations) {
-                        addPathPoint(location)
-                        addAltitude(location)
-                        postTime()
+                        addLocation(location)
                     }
                 }
             }
@@ -64,18 +63,21 @@ class TrackingService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        currentNotificationBuilder = getBaseNotificationBuilder()
         postInitialValues()
         fusedLocationProviderClient = FusedLocationProviderClient(this)
 
         isTracking.observe(this, {
             updateLocationTracking(it)
         })
+        chrono.timeInMs.observe(this) {
+            timeInMs.postValue(it)
+        }
     }
 
     private fun postInitialValues() {
         isTracking.postValue(false)
-        pathPoint.postValue(mutableListOf())
-        altitudes.postValue(mutableListOf())
+        coordinates.postValue(mutableListOf())
         timeInMs.postValue(0L)
     }
 
@@ -102,30 +104,30 @@ class TrackingService : LifecycleService() {
     }
 
     private fun startForegroundService() {
+        chrono.startTimer()
         isTracking.postValue(true)
-        startChrono()
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setAutoCancel(false) //So that the notification stay active if the user click on it
-            .setOngoing(true) //So that the notification can't be swiped away
-            .setSmallIcon(R.drawable.ic_notification_trek) //to set an icon
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText("00:00:00")
-            .setContentIntent(getMainActivityPendingIntent())
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createNotificationChannel(notificationManager)
         }
-        startForeground(Constants.NOTIFICATION_ID, notificationBuilder.build())
+        startForeground(NOTIFICATION_ID, getBaseNotificationBuilder().build())
+        chrono.timeInS.observe(this) {
+            val dateFormat = SimpleDateFormat("HH:mm:ss")
+            dateFormat.timeZone = TimeZone.getTimeZone("GMT+0") //needed on physical device for a chrono in order that it start at 0
+            val notification = currentNotificationBuilder
+                .setContentText(dateFormat.format(it * 1000))
+            notificationManager.notify(NOTIFICATION_ID, notification.build())
+        }
     }
 
     private fun killService() {
         serviceKilled = true
         isFirstRun = true
         isTracking.postValue(false)
-        stopChrono()
-        postTime()
+        chrono.stopTimer()
+        postInitialValues()
         updateLocationTracking(isTracking.value!!)
         stopForeground(true)
         stopSelf()
@@ -150,27 +152,13 @@ class TrackingService : LifecycleService() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun addPathPoint(location: Location?) {
+    private fun addLocation(location: Location?) {
         location?.let {
-            val pos = LatLng(it.latitude, it.longitude)
-            pathPoint.value?.apply {
-                add(pos)
-                pathPoint.postValue(this)
+            coordinates.value?.apply {
+                add(Coordinate(it.latitude, it.longitude, it.altitude))
+                coordinates.postValue(this)
             }
         }
-    }
-
-    private fun addAltitude(location: Location?) {
-        location?.let {
-            altitudes.value?.apply {
-                add(location.altitude)
-                altitudes.postValue(this)
-            }
-        }
-    }
-
-    private fun postTime() {
-        timeInMs.postValue(deltaTime())
     }
 
     @SuppressLint("MissingPermission")
@@ -193,19 +181,13 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    private fun startChrono() {
-        timeEnd = -1L
-        timeStart = System.currentTimeMillis()
-    }
-
-    private fun stopChrono() { timeEnd = System.currentTimeMillis() }
-
-    private fun deltaTime(): Long {
-        return if (timeEnd != -1L) {
-            timeEnd - timeStart
-        } else {
-
-            System.currentTimeMillis() - timeStart
-        }
+    private fun getBaseNotificationBuilder(): NotificationCompat.Builder {
+        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setAutoCancel(false) //So that the notification stay active if the user click on it
+            .setOngoing(true) //So that the notification can't be swiped away
+            .setSmallIcon(R.drawable.ic_notification_trek) //to set an icon
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText("00:00:00")
+            .setContentIntent(getMainActivityPendingIntent())
     }
 }

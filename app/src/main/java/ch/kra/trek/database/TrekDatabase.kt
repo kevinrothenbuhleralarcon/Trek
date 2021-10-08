@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [TrekData::class, Coordinate::class], version = 4)
+@Database(entities = [TrekData::class], version = 1)
+@TypeConverters(DataConverter::class)
 abstract class TrekDatabase: RoomDatabase() {
     abstract fun trekDao(): TrekDao
 

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Trek</string>
     <string name="btn_start_trek_text">Start new trek</string>
+    <string name="continue_trek">Resume trek</string>
     <string name="btn_load_trek_text">Load trek</string>
     <string name="btn_save_trek_text">Save trek</string>
     <string name="btn_delete_trek_text">Delete Trek</string>
@@ -8,10 +9,10 @@
     <string name="btn_end_trek">End trek</string>
     <string name="lbl_time_header_text">Time:</string>
     <string name="lbl_km_header_text">Km:</string>
-    <string name="lbl_max_drop_text">Maximum drop:</string>
+    <string name="lbl_max_drop_text">Total positive and negative drops:</string>
     <string name="lbl_total_drop_text">Total drop:</string>
     <string name="dialog_permission_location_title">Permission</string>
-    <string name="dialog_permission_location_message">This part of the app require access to the GPS is order to display the path of the trek</string>
+    <string name="dialog_permission_location_message">This part of the app require access to the GPS in order to display the path of the trek.\nIf you have permanently denied this permission you have to change it in the phone settings.</string>
     <string name="dialog_permission_location_btn_neutral_text">Ok</string>
     <string name="dialog_gps_disable_title">GPS off</string>
     <string name="dialog_gps_disable_message">This part of the app require that the GPS is turned on in order to display the path of the trek.\nPlease turn it on prior to continue</string>

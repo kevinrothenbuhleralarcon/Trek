@@ -10,17 +10,12 @@ interface TrekDao {
 
     @Transaction
     @Query("SELECT * FROM trekData WHERE id = :trekId")
-    suspend fun getTrekWithCoordinates(trekId: Int): TrekWithCoordinates
+    suspend fun getTrek(trekId: Int): TrekData
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTrekData(trekData: TrekData): Long
 
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCoordonate(coordinate: Coordinate)
-
-    @Transaction
     @Delete
-    suspend fun deleteTrekWithCoordinates(trekData: TrekData, listCoordinates: List<Coordinate>)
+    suspend fun deleteTrekData(trekData: TrekData)
 }

@@ -1,42 +1,20 @@
 package ch.kra.trek.ui.fragments
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ch.kra.trek.R
 import ch.kra.trek.databinding.FragmentStartBinding
+import ch.kra.trek.services.TrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class StartFragment : Fragment() {
-
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        Log.d("permission", "Value of fine : ${it[Manifest.permission.ACCESS_FINE_LOCATION].toString()}")
-        Log.d("permission", "Value of coarsa : ${it[Manifest.permission.ACCESS_COARSE_LOCATION].toString()}")
-        Log.d("permission", "Value of background : ${it[Manifest.permission.ACCESS_BACKGROUND_LOCATION].toString()}")
-        if (it[Manifest.permission.ACCESS_FINE_LOCATION] == true || it[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-            startNewTrek()
-        } else {
-            Log.d("permission", "launcher denied")
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_permission_location_title))
-                .setMessage(getString(R.string.dialog_permission_location_message))
-                .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ -> }
-                .show()
-        }
-    }
 
     private var _binding: FragmentStartBinding? = null
     private val binding get() = _binding!!
@@ -53,6 +31,9 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.startFragment = this
+        if (TrackingService.isTracking.value == true) {
+            binding.btnStartTrek.text = getString(R.string.continue_trek)
+        }
     }
 
     override fun onDestroy() {
@@ -67,62 +48,16 @@ class StartFragment : Fragment() {
 
 
     fun startNewTrek() {
-        //before we can start a new trek we have to check the permission
-        if (isLocationPermissionGranted()) {
-            val locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                val action = StartFragmentDirections.actionStartFragmentToTrekFragment()
-                findNavController().navigate(action)
-            } else {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_gps_disable_title))
-                    .setMessage(getString(R.string.dialog_gps_disable_message))
-                    .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _,_ -> }
-                    .show()
-            }
-        }
-    }
-
-    private fun isLocationPermissionGranted(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            Log.d("permission", "Less than Q")
-        }
-        return when {
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED-> {
-                //Action if the permission is already granted
-                true
-            }
-
-            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)-> {
-                //Action if the app need think it need to show the request permission radial
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.dialog_permission_location_title))
-                    .setMessage(getString(R.string.dialog_permission_location_message))
-                    .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ ->
-                        requestPermissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                            )
-                        )
-                    }
-                    .show()
-                false
-            }
-
-            else -> {
-                //action if the permission hasn't been asked yet
-                requestPermissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                    )
-                )
-                false
-            }
+        val locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            val action = StartFragmentDirections.actionStartFragmentToTrekFragment()
+            findNavController().navigate(action)
+        } else {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.dialog_gps_disable_title))
+                .setMessage(getString(R.string.dialog_gps_disable_message))
+                .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _,_ -> }
+                .show()
         }
     }
 }
