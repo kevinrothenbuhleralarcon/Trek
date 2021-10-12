@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ch.kra.trek.R
@@ -24,16 +23,18 @@ class StartFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_start, container, false)
+        _binding = FragmentStartBinding.inflate(inflater,  container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.startFragment = this
         if (TrackingService.isTracking.value == true) {
             binding.btnStartTrek.text = getString(R.string.continue_trek)
         }
+        binding.btnStartTrek.setOnClickListener { startNewTrek() }
+        binding.btnLoadTrek.setOnClickListener { loadTrek() }
+
     }
 
     override fun onDestroy() {
@@ -41,13 +42,13 @@ class StartFragment : Fragment() {
         _binding = null
     }
 
-    fun loadTrek() {
+    private fun loadTrek() {
         val action = StartFragmentDirections.actionStartFragmentToLoadTrekFragment()
         findNavController().navigate(action)
     }
 
 
-    fun startNewTrek() {
+    private fun startNewTrek() {
         val locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             val action = StartFragmentDirections.actionStartFragmentToTrekFragment()

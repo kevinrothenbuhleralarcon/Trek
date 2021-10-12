@@ -26,7 +26,7 @@ class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, 
 
     class LoadTrekViewHolder(val binding: TrekListItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(trekData: TrekData) {
-            binding.trek = trekData
+            binding.lblTrekName.text = trekData.trekName
         }
     }
 

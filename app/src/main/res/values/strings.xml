@@ -35,4 +35,6 @@
     <string name="dialog_info_back_btn_positive_text">Yes</string>
     <string name="dialog_info_back_btn_negative_text">No</string>
     <string name="default_new_trek_name">New Trek</string>
+    <string name="altitude">Altitude</string>
+    <string name="distance">Distance (km)</string>
 </resources>

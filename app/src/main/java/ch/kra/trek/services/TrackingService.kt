@@ -33,6 +33,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.random.Random
 
 class TrackingService : LifecycleService() {
 
@@ -155,7 +156,8 @@ class TrackingService : LifecycleService() {
     private fun addLocation(location: Location?) {
         location?.let {
             coordinates.value?.apply {
-                add(Coordinate(it.latitude, it.longitude, it.altitude))
+                //add(Coordinate(it.latitude, it.longitude, it.altitude))
+                add(Coordinate(it.latitude, it.longitude, Random.nextDouble(0.0, 700.0)))
                 coordinates.postValue(this)
             }
         }

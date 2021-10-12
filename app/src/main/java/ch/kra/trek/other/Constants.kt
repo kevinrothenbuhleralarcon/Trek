@@ -20,5 +20,5 @@ object Constants {
     const val POLYLINE_COLOR = Color.RED
     const val POLYLINE_WIDTH = 8f
 
-    const val EARTH_RADIUS = 6367445
+    const val EARTH_RADIUS = 6371e3
 }

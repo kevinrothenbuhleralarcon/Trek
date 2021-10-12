@@ -1,6 +1,7 @@
 package ch.kra.trek.ui.fragments
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -10,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -20,13 +20,18 @@ import ch.kra.trek.TrekApplication
 import ch.kra.trek.database.Coordinate
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.FragmentTrekInfoBinding
-import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
+import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
 import ch.kra.trek.ui.viewmodels.TrekViewModel
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.DecimalFormat
@@ -83,7 +88,7 @@ class TrekInfoFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_trek_info, container, false)
+        _binding = FragmentTrekInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -107,6 +112,8 @@ class TrekInfoFragment : Fragment() {
             binding.btnSaveDeleteTrek.setOnClickListener { deleteTrek() }
             isNewUnsavedTrek = false
         }
+
+        setupGraph()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -151,6 +158,29 @@ class TrekInfoFragment : Fragment() {
         super.onDestroy()
         binding.mapView.onDestroy()
         _binding = null
+    }
+
+    private fun setupGraph() {
+        binding.linechart.apply {
+            legend.textColor = Color.WHITE
+
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                axisLineColor = Color.WHITE
+                textColor = Color.WHITE
+                setDrawGridLines(false)
+                description.text = "Distance (km)"
+                description.textColor = Color.WHITE
+            }
+            axisLeft.apply {
+                axisLineColor = Color.WHITE
+                textColor = Color.WHITE
+                setDrawGridLines(false)
+            }
+            axisRight.apply {
+                isEnabled = false
+            }
+        }
     }
 
     private fun saveTrek() {
@@ -205,21 +235,28 @@ class TrekInfoFragment : Fragment() {
         binding.lblKm.text = "${decimalFormat.format(trek.km / 1000)} km"
         binding.lblPositiveNegativeDrop.text = "${decimalFormat.format(trek.totalPositiveDrop)} m / ${decimalFormat.format(trek.totalNegativeDrop)} m"
         binding.lblTotalDrop.text = "${decimalFormat.format(trek.totalPositiveDrop + trek.totalNegativeDrop)} m"
-        displayRoad(trek.coordinates)
     }
 
     private fun displayRoad(road: List<Coordinate>) {
         if (road.isNotEmpty()) {
+            val bounds = LatLngBounds.Builder()
             val polylineOption = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
                 .clickable(false)
             for (coordinate in road)
             {
-                polylineOption.add(LatLng(coordinate.latitude, coordinate.longitude))
+                val newLatLng = LatLng(coordinate.latitude, coordinate.longitude)
+                polylineOption.add(newLatLng)
+                bounds.include(newLatLng)
             }
             map?.addPolyline(polylineOption)
-            map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(road.first().latitude, road.first().longitude), MAP_CAMERA_ZOOM))
+            map?.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                bounds.build(),
+                binding.mapView.width,
+                binding.mapView.height,
+                (binding.mapView.height * 0.05).toInt()
+            ))
         }
     }
 
@@ -227,8 +264,30 @@ class TrekInfoFragment : Fragment() {
         viewModel.getTrek(trekId).observe(viewLifecycleOwner) { selectedTrek ->
             trek = selectedTrek
             bindData(selectedTrek)
+            displayRoad(selectedTrek.coordinates)
             changeTitle()
+            updateGraph()
         }
+    }
+
+    private fun updateGraph() {
+        val listAltitude = mutableListOf<Entry>()
+        var lastCoordinate: Coordinate? = null
+        var cumulatedMeter = 0.0
+        for (coordinate in trek!!.coordinates) {
+            if (lastCoordinate != null) {
+                cumulatedMeter += TrekUtility.getDistanceInMeterBetweenTwoCoordinate(lastCoordinate, coordinate)
+            }
+            listAltitude.add(Entry((cumulatedMeter / 1000).toFloat(), coordinate.altitude.toFloat()))
+            lastCoordinate = coordinate
+        }
+        val lineDataSet = LineDataSet(listAltitude, getString(R.string.altitude)).apply {
+            color = Color.WHITE
+            setDrawCircles(false)
+            setDrawValues(false)
+        }
+        binding.linechart.data = LineData(lineDataSet)
+        binding.linechart.invalidate()
     }
 
     private fun changeTitle()

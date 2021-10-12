@@ -3,11 +3,7 @@ package ch.kra.trek.helper
 import ch.kra.trek.database.Coordinate
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.other.Constants.EARTH_RADIUS
-import com.google.android.gms.maps.model.LatLng
-import kotlin.math.PI
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 object TrekUtility {
 
@@ -16,30 +12,39 @@ object TrekUtility {
 
     fun getTrek(coordinates: List<Coordinate>, timeInMs: Long, trekName: String): TrekData {
         calculateDrops(coordinates)
-        val km = getKm(coordinates)
+        val km = getDistanceInMeter(coordinates)
         return TrekData(trekName = trekName, time = timeInMs, km = km, totalPositiveDrop = totalPositiveDrop, totalNegativeDrop = totalNegativeDrop, coordinates = coordinates)
     }
 
-    private fun getKm(coordinates: List<Coordinate>): Double {
+    fun getDistanceInMeterBetweenTwoCoordinate(coordinate1: Coordinate, coordinate2: Coordinate): Double {
+        val lat1InRad = coordinate1.latitude * PI / 180
+        val lat2InRad = coordinate2.latitude * PI / 180
+        val deltaLatInRad = (coordinate2.latitude - coordinate1.latitude) * PI / 180
+        val deltaLonInRad = (coordinate2.longitude - coordinate1.longitude) * PI / 180
+
+        val a = sin(deltaLatInRad / 2).pow(2) +
+                cos(lat1InRad) * cos(lat2InRad) *
+                sin(deltaLonInRad / 2).pow(2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1-a))
+        return EARTH_RADIUS * c
+    }
+
+
+    private fun getDistanceInMeter(coordinates: List<Coordinate>): Double {
         var total: Double = 0.0
-        var lastLatLng: LatLng? = null
+        var lastLatLng: Coordinate? = null
 
-        for (location in coordinates) {
-            val newLatLng = LatLng(location.latitude, location.longitude)
+        for (coordinate in coordinates) {
             if (lastLatLng != null) {
-                val newLat = newLatLng.latitude * PI / 180
-                val oldLat = lastLatLng.latitude * PI / 180
-                val newLng = newLatLng.longitude * PI / 180
-                val oldLng = lastLatLng.longitude * PI / 180
-
-                total += EARTH_RADIUS * acos((sin(oldLat) * sin(newLat)) + (cos(oldLat) * cos(newLat) * cos(oldLng - newLng)))
+                total += getDistanceInMeterBetweenTwoCoordinate(lastLatLng, coordinate)
             }
-            lastLatLng = newLatLng
+            lastLatLng = coordinate
         }
         return total
     }
 
-    fun calculateDrops(coordinates: List<Coordinate>) {
+    private fun calculateDrops(coordinates: List<Coordinate>) {
         //altitude set as 10 km as we cannot be at an altitude on 10 km on foot
         var lastAltitude: Double? = null
         totalPositiveDrop = 0.0

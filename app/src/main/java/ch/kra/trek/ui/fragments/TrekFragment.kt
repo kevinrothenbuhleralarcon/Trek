@@ -4,18 +4,16 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -23,12 +21,17 @@ import ch.kra.trek.R
 import ch.kra.trek.TrekApplication
 import ch.kra.trek.database.Coordinate
 import ch.kra.trek.databinding.FragmentTrekBinding
+import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants
 import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
 import ch.kra.trek.services.TrackingService
 import ch.kra.trek.ui.viewmodels.TrekViewModel
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
@@ -75,11 +78,10 @@ class TrekFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_trek, container, false)
+        _binding = FragmentTrekBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkPermissions()
@@ -88,13 +90,11 @@ class TrekFragment : Fragment() {
             map = it
             map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
         }
+        setupGraph()
         subscribeToObservers()
         setButtonOnClickListener()
         setInitialButtonVisibility()
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        Log.d("track", "$isTracking")
         if (!isTracking) {
-            Log.d("track", "reset chrono")
             binding.txtChrono.text == "00:00:00"
         }
     }
@@ -133,6 +133,28 @@ class TrekFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         binding.mapView.onSaveInstanceState(outState)
+    }
+
+    private fun setupGraph() {
+        binding.linechart.apply {
+            visibility = View.GONE
+            description.text = getString(R.string.distance)
+            description.textColor = Color.WHITE
+
+            xAxis.apply {
+                textColor = Color.WHITE
+                position = XAxis.XAxisPosition.BOTTOM
+                axisLineColor = Color.WHITE
+                setDrawGridLines(false)
+            }
+            axisLeft.apply {
+                textColor = Color.WHITE
+                axisLineColor = Color.WHITE
+                setDrawGridLines(false)
+            }
+            axisRight.isEnabled = false
+        }
+
     }
 
     private fun setButtonOnClickListener() {
@@ -211,6 +233,31 @@ class TrekFragment : Fragment() {
         }
     }
 
+    private fun updateGraph() {
+        if (coordinates.isNotEmpty()) {
+            var cumulativeMeter = 0.0
+            val listAltitude = mutableListOf<Entry>()
+            var lastCoordinate: Coordinate? = null
+            for (coordinate in coordinates) {
+                if (lastCoordinate != null) {
+                    binding.linechart.visibility = View.VISIBLE //show the graph only after 2 coordinates
+                    cumulativeMeter += TrekUtility.getDistanceInMeterBetweenTwoCoordinate(lastCoordinate, coordinate)
+                }
+                listAltitude.add(Entry((cumulativeMeter / 1000).toFloat(), coordinate.altitude.toFloat()))
+                lastCoordinate = coordinate
+            }
+            val lineDataSet = LineDataSet(listAltitude, getString(R.string.altitude)).apply {
+                color = Color.WHITE
+                valueTextColor = Color.WHITE
+                setDrawCircles(false)
+                setDrawValues(false)
+            }
+            binding.linechart.clear()
+            binding.linechart.data = LineData(lineDataSet)
+            binding.linechart.invalidate()
+        }
+    }
+
     private fun updateTime() {
         val dateFormat = SimpleDateFormat("HH:mm:ss")
         dateFormat.timeZone = TimeZone.getTimeZone("GMT+0")
@@ -228,6 +275,7 @@ class TrekFragment : Fragment() {
         TrackingService.coordinates.observe(viewLifecycleOwner) {
             coordinates = it
             addPolyline()
+            updateGraph()
             moveCameraToUser()
             map?.isMyLocationEnabled = true
         }

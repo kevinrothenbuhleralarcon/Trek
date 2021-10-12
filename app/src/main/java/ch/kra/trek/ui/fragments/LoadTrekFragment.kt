@@ -4,12 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import ch.kra.trek.R
 import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentLoadTrekBinding
 import ch.kra.trek.ui.adapter.LoadTrekAdapter
@@ -28,7 +26,7 @@ class LoadTrekFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_load_trek, container, false)
+        _binding = FragmentLoadTrekBinding.inflate(inflater, container, false)
         return binding.root
     }
 
