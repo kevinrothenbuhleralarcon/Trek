@@ -21,10 +21,13 @@
         android:id="@+id/spinner_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
         android:spinnerMode="dropdown"
+        android:entries="@array/language_array"
         app:layout_constraintTop_toBottomOf="@id/label_language"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/spinner_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

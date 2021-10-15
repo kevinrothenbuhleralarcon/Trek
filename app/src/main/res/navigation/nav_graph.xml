@@ -12,6 +12,7 @@
     <fragment
         android:id="@+id/loadTrekFragment"
         android:name="ch.kra.trek.ui.fragments.LoadTrekFragment"
+        android:label="@string/load_trek_fragment_title"
         tools:layout="@layout/fragment_load_trek">
         <action
             android:id="@+id/action_loadTrekFragment_to_trekInfoFragment"
@@ -20,7 +21,6 @@
     <fragment
         android:id="@+id/trekInfoFragment"
         android:name="ch.kra.trek.ui.fragments.TrekInfoFragment"
-        android:label="TrekInfoFragment"
         tools:layout="@layout/fragment_trek_info">
         <action
             android:id="@+id/action_trekInfoFragment_to_loadTrekFragment"
@@ -34,7 +34,7 @@
     <fragment
         android:id="@+id/trekFragment"
         android:name="ch.kra.trek.ui.fragments.TrekFragment"
-        android:label="New Trek"
+        android:label="@string/trek_fragment_title"
         tools:layout="@layout/fragment_trek">
         <action
             android:id="@+id/action_trekFragment_to_trekInfoFragment"
@@ -43,6 +43,6 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="ch.kra.trek.ui.fragments.SettingsFragment"
-        android:label="fragment_settings"
+        android:label="@string/settings_fragment_title"
         tools:layout="@layout/fragment_settings" />
 </navigation>

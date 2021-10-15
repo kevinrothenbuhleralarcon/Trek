@@ -27,7 +27,6 @@ import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
 import ch.kra.trek.services.TrackingService
-import ch.kra.trek.ui.MainActivity
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -85,7 +84,6 @@ class TrekFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).changeTitle(getString(R.string.trek_fragment_title))
         checkPermissions()
         binding.trekMapView.onCreate(savedInstanceState)
         binding.trekMapView.getMapAsync {

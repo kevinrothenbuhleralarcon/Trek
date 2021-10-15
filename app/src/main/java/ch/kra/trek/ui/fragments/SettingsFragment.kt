@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import ch.kra.trek.R
 import ch.kra.trek.databinding.FragmentSettingsBinding
-import ch.kra.trek.ui.MainActivity
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
@@ -24,8 +23,7 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).changeTitle(getString(R.string.settings_fragment_title))
-        val spinnerAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.language_array, android.R.layout.simple_spinner_item).apply {
+        val spinnerAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.language_array, R.layout.spinner_item).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerLanguage.adapter = spinnerAdapter

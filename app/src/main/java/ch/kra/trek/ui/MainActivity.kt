@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import ch.kra.trek.R
 import ch.kra.trek.databinding.ActivityMainBinding
@@ -25,23 +26,27 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNav.setupWithNavController(navController)
 
+        setupActionBarWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loadTrekFragment, R.id.trekFragment, R.id.settingsFragment -> {
-                    binding.fabBack.visibility = View.GONE
+                    //binding.fabBack.visibility = View.GONE
+                    supportActionBar?.setDisplayHomeAsUpEnabled(false)
                     binding.bottomNav.visibility = View.VISIBLE
                 }
 
                 else -> {
-                    binding.fabBack.visibility = View.VISIBLE
-                    binding.fabBack.setOnClickListener {
+                    //binding.fabBack.visibility = View.VISIBLE
+                    /*binding.fabBack.setOnClickListener {
                         onBackPressed()
-                    }
+                    }*/
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     binding.bottomNav.visibility = View.GONE
                 }
             }
         }
-        setSupportActionBar(binding.toolbar)
+        //setSupportActionBar(binding.toolbar)
+
         navigateToTrekFragmentIfNeeded(intent)
     }
 
@@ -54,9 +59,9 @@ class MainActivity : AppCompatActivity() {
         navigateToTrekFragmentIfNeeded(intent)
     }
 
-    fun changeTitle(title: String) {
+    /*fun changeTitle(title: String) {
         binding.toolbarTitle.text = title
-    }
+    }*/
 
     private fun navigateToTrekFragmentIfNeeded(intent: Intent?) {
         if (intent?.action == ACTION_SHOW_TREK_FRAGMENT) {

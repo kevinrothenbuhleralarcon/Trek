@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -21,7 +22,6 @@ import ch.kra.trek.databinding.FragmentTrekInfoBinding
 import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
-import ch.kra.trek.ui.MainActivity
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -284,6 +284,7 @@ class TrekInfoFragment : Fragment() {
     private fun changeTitle()
     {
         val title = trek?.let { it.trekName } ?: getString(R.string.default_new_trek_name)
-        (requireActivity() as MainActivity).changeTitle(title)
+        (activity as AppCompatActivity).supportActionBar?.title = title
+        //(requireActivity() as MainActivity).changeTitle(title)
     }
 }
