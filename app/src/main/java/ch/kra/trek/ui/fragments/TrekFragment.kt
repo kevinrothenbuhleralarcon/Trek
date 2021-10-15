@@ -27,6 +27,7 @@ import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
 import ch.kra.trek.services.TrackingService
+import ch.kra.trek.ui.MainActivity
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -84,9 +85,10 @@ class TrekFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as MainActivity).changeTitle(getString(R.string.trek_fragment_title))
         checkPermissions()
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync {
+        binding.trekMapView.onCreate(savedInstanceState)
+        binding.trekMapView.getMapAsync {
             map = it
             map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
         }
@@ -101,38 +103,38 @@ class TrekFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        binding.mapView.onResume()
+        _binding?.trekMapView?.onResume()
     }
 
     override fun onStart() {
         super.onStart()
-        binding.mapView.onStart()
+        _binding?.trekMapView?.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        binding.mapView.onStop()
+        _binding?.trekMapView?.onStop()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.mapView.onPause()
+        _binding?.trekMapView?.onPause()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        binding.mapView.onLowMemory()
+        _binding?.trekMapView?.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.mapView.onDestroy()
+        _binding?.trekMapView?.onDestroy()
         _binding = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        binding.mapView.onSaveInstanceState(outState)
+        _binding?.trekMapView?.onSaveInstanceState(outState)
     }
 
     private fun setupGraph() {

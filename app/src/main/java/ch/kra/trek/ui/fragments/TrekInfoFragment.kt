@@ -4,13 +4,11 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -23,6 +21,7 @@ import ch.kra.trek.databinding.FragmentTrekInfoBinding
 import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
+import ch.kra.trek.ui.MainActivity
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -67,7 +66,7 @@ class TrekInfoFragment : Fragment() {
                     .setMessage(getString(R.string.dialog_info_back_message))
                     .setPositiveButton(getString(R.string.dialog_info_back_btn_positive_text)) { _, _ ->
                         this.remove() //remove this callback as we need to perform the backPressed action
-                        val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToStartFragment()
+                        val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToLoadTrekFragment()
                         findNavController().navigate(action)
                     }
                     .setNegativeButton(R.string.dialog_info_back_btn_negative_text) { _, _ -> }
@@ -75,7 +74,7 @@ class TrekInfoFragment : Fragment() {
             } else {
                 this.remove()
                 if (trekId == 0) {
-                    val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToStartFragment()
+                    val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToLoadTrekFragment()
                     findNavController().navigate(action)
                 } else {
                     requireActivity().onBackPressed()
@@ -96,8 +95,8 @@ class TrekInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         trekId = navigationArgs.trekId
 
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync {
+        binding.infoMapView.onCreate(savedInstanceState)
+        binding.infoMapView.getMapAsync {
             map = it
             map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
             subscribeToObserver()
@@ -116,47 +115,39 @@ class TrekInfoFragment : Fragment() {
         setupGraph()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            requireActivity().onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        binding.mapView.onSaveInstanceState(outState)
+        _binding?.infoMapView?.onSaveInstanceState(outState)
     }
 
     override fun onStart() {
         super.onStart()
-        binding.mapView.onStart()
+        _binding?.infoMapView?.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        binding.mapView.onStop()
+        _binding?.infoMapView?.onStop()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.mapView.onPause()
+        _binding?.infoMapView?.onPause()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        binding.mapView.onLowMemory()
+        _binding?.infoMapView?.onLowMemory()
     }
 
     override fun onResume() {
         super.onResume()
-        binding.mapView.onResume()
+        _binding?.infoMapView?.onResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.mapView.onDestroy()
+        _binding?.infoMapView?.onDestroy()
         _binding = null
     }
 
@@ -253,9 +244,9 @@ class TrekInfoFragment : Fragment() {
             map?.addPolyline(polylineOption)
             map?.moveCamera(CameraUpdateFactory.newLatLngBounds(
                 bounds.build(),
-                binding.mapView.width,
-                binding.mapView.height,
-                (binding.mapView.height * 0.05).toInt()
+                binding.infoMapView.width,
+                binding.infoMapView.height,
+                (binding.infoMapView.height * 0.05).toInt()
             ))
         }
     }
@@ -293,6 +284,6 @@ class TrekInfoFragment : Fragment() {
     private fun changeTitle()
     {
         val title = trek?.let { it.trekName } ?: getString(R.string.default_new_trek_name)
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = title
+        (requireActivity() as MainActivity).changeTitle(title)
     }
 }

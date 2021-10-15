@@ -37,4 +37,15 @@
     <string name="default_new_trek_name">New Trek</string>
     <string name="altitude">Altitude</string>
     <string name="distance">Distance (km)</string>
+    <string name="your_past_trek">Your saved trek</string>
+    <string name="settings">Settings</string>
+    <string name="load_trek_fragment_title">Your saved trek</string>
+    <string name="trek_fragment_title">New trek</string>
+    <string name="settings_fragment_title">Settings</string>
+    <string name="language">Language</string>
+    
+    <string-array name="language_array">
+        <item>English</item>
+        <item>French</item>
+    </string-array>
 </resources>

@@ -8,8 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import ch.kra.trek.R
 import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentLoadTrekBinding
+import ch.kra.trek.ui.MainActivity
 import ch.kra.trek.ui.adapter.LoadTrekAdapter
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 
@@ -32,6 +34,7 @@ class LoadTrekFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as MainActivity).changeTitle(getString(R.string.load_trek_fragment_title))
         val adapter = LoadTrekAdapter(this::displayTrek)
         binding.recyclerTrekList.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerTrekList.adapter = adapter

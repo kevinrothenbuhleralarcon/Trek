@@ -10,4 +10,5 @@
     <color name="green_900_primary">#1b5e20</color>
     <color name="green_900_light">#4c8c4a</color>
     <color name="green_900_dark">#003300</color>
+    <color name="orange_400_primary">#ffa726</color>
 </resources>
