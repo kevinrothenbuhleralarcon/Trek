@@ -30,22 +30,16 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.loadTrekFragment, R.id.trekFragment, R.id.settingsFragment -> {
-                    //binding.fabBack.visibility = View.GONE
                     supportActionBar?.setDisplayHomeAsUpEnabled(false)
                     binding.bottomNav.visibility = View.VISIBLE
                 }
 
                 else -> {
-                    //binding.fabBack.visibility = View.VISIBLE
-                    /*binding.fabBack.setOnClickListener {
-                        onBackPressed()
-                    }*/
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     binding.bottomNav.visibility = View.GONE
                 }
             }
         }
-        //setSupportActionBar(binding.toolbar)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -56,10 +50,6 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         navigateToTrekFragmentIfNeeded(intent)
     }
-
-    /*fun changeTitle(title: String) {
-        binding.toolbarTitle.text = title
-    }*/
 
     private fun navigateToTrekFragmentIfNeeded(intent: Intent?) {
         if (intent?.action == ACTION_SHOW_TREK_FRAGMENT) {

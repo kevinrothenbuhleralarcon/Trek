@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
     android:layout_marginStart="8dp"
     android:layout_marginEnd="8dp">
 
@@ -12,12 +13,23 @@
         android:id="@+id/lbl_trek_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        app:layout_constraintBottom_toTopOf="@id/divider"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/lbl_date_list"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        style="@style/text"
+        style="@style/header"
         tools:text="Les 14 contours" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/lbl_date_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/lbl_trek_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/divider"
+        style="@style/text"
+        tools:text="19.10.2021" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_load_trek"
@@ -36,6 +48,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lbl_trek_name" />
+        app:layout_constraintTop_toBottomOf="@id/lbl_date_list" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

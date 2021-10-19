@@ -41,8 +41,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.text.SimpleDateFormat
-import java.util.*
 
 class TrekFragment : Fragment() {
 
@@ -263,9 +261,7 @@ class TrekFragment : Fragment() {
     }
 
     private fun updateTime() {
-        val dateFormat = SimpleDateFormat("HH:mm:ss")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT+0")
-        binding.txtChrono.text = dateFormat.format(timeInMs)
+        binding.txtChrono.text = TrekUtility.getTimeInStringFormat(timeInMs)
     }
 
     private fun sendCommandToService(action: String) =

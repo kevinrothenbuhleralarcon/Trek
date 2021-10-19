@@ -5,6 +5,8 @@ import ch.kra.trek.database.Coordinate
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.other.Constants.EARTH_RADIUS
 import com.google.android.gms.maps.GoogleMap
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.*
 
 object TrekUtility {
@@ -15,7 +17,7 @@ object TrekUtility {
     fun getTrek(coordinates: List<Coordinate>, timeInMs: Long, trekName: String): TrekData {
         calculateDrops(coordinates)
         val km = getDistanceInMeter(coordinates)
-        return TrekData(trekName = trekName, time = timeInMs, km = km, totalPositiveDrop = totalPositiveDrop, totalNegativeDrop = totalNegativeDrop, coordinates = coordinates)
+        return TrekData(trekName = trekName, date = Date(System.currentTimeMillis()), time = timeInMs, km = km, totalPositiveDrop = totalPositiveDrop, totalNegativeDrop = totalNegativeDrop, coordinates = coordinates)
     }
 
     fun getDistanceInMeterBetweenTwoCoordinate(coordinate1: Coordinate, coordinate2: Coordinate): Double {
@@ -40,6 +42,17 @@ object TrekUtility {
             R.id.terrain_map_type -> GoogleMap.MAP_TYPE_TERRAIN
             else -> GoogleMap.MAP_TYPE_NORMAL
         }
+    }
+
+    fun getTimeInStringFormat(time:Long): String {
+        val timeFormat = SimpleDateFormat("HH:mm:ss")
+        timeFormat.timeZone = TimeZone.getTimeZone("GMT+0") //needed on physical device for a chrono in order that it start at 0
+        return timeFormat.format(time)
+    }
+
+    fun getDateInStringFormat(date: Date): String {
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy")
+        return dateFormat.format(date)
     }
 
 

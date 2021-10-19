@@ -22,6 +22,7 @@
     <string name="default_new_trek_name">Nouvelle randonnée</string>
     <string name="altitude">Altitude</string>
     <string name="distance">Distance (km)</string>
+    <string name="trek">Randonnée</string>
     <string name="your_past_trek">Vos randonnées sauvegardées</string>
     <string name="settings">Options</string>
     <string name="load_trek_fragment_title">Vos randonnées sauvegardées</string>
@@ -37,9 +38,5 @@
     <string name="satellite">Satellite</string>
     <string name="hybrid">Hybride</string>
     <string name="terrain">Relief</string>
-
-    <string-array name="language_array">
-        <item>Anglais</item>
-        <item>Français</item>
-    </string-array>
+    <string name="date">Date:</string>
 </resources>

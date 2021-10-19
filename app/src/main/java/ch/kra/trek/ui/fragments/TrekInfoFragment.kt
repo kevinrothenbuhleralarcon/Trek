@@ -39,8 +39,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
-import java.util.*
 
 class TrekInfoFragment : Fragment() {
 
@@ -231,11 +229,10 @@ class TrekInfoFragment : Fragment() {
     }
 
     private fun bindData(trek: TrekData) {
-        val dateFormat = SimpleDateFormat("HH:mm:ss")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT+0") //needed on physical device for a chrono in order that it start at 0
         val decimalFormat = DecimalFormat("0.00")
 
-        binding.lblTime.text =dateFormat.format(Date(trek.time))
+        binding.lblTime.text = TrekUtility.getTimeInStringFormat(trek.time)
+        binding.lblDate.text = TrekUtility.getDateInStringFormat(trek.date)
         binding.lblKm.text = "${decimalFormat.format(trek.km / 1000)} km"
         binding.lblPositiveNegativeDrop.text = "${decimalFormat.format(trek.totalPositiveDrop)} m / ${decimalFormat.format(trek.totalNegativeDrop)} m"
         binding.lblTotalDrop.text = "${decimalFormat.format(trek.totalPositiveDrop + trek.totalNegativeDrop)} m"

@@ -43,5 +43,6 @@ class SettingsFragment : Fragment() {
     private fun savePreferences() {
         val rBtn = binding.radioGroupMapType.checkedRadioButtonId
         sharedPreferences.edit().putInt(MAP_TYPE, rBtn).apply()
+        requireActivity().onBackPressed()
     }
 }

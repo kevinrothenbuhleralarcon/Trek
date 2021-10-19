@@ -17,6 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import ch.kra.trek.R
 import ch.kra.trek.database.Coordinate
 import ch.kra.trek.helper.Chrono
+import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants.ACTION_SHOW_TREK_FRAGMENT
 import ch.kra.trek.other.Constants.ACTION_START_SERVICE
 import ch.kra.trek.other.Constants.ACTION_STOP_SERVICE
@@ -31,8 +32,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import java.text.SimpleDateFormat
-import java.util.*
 
 class TrackingService : LifecycleService() {
 
@@ -114,10 +113,8 @@ class TrackingService : LifecycleService() {
         }
         startForeground(NOTIFICATION_ID, getBaseNotificationBuilder().build())
         chrono.timeInS.observe(this) {
-            val dateFormat = SimpleDateFormat("HH:mm:ss")
-            dateFormat.timeZone = TimeZone.getTimeZone("GMT+0") //needed on physical device for a chrono in order that it start at 0
             val notification = currentNotificationBuilder
-                .setContentText(dateFormat.format(it * 1000))
+                .setContentText(TrekUtility.getTimeInStringFormat(it * 1000))
             notificationManager.notify(NOTIFICATION_ID, notification.build())
         }
     }

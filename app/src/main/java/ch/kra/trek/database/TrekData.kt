@@ -4,6 +4,7 @@ import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity
 data class TrekData(
@@ -13,5 +14,6 @@ data class TrekData(
     @NonNull @ColumnInfo val km: Double,
     @NonNull @ColumnInfo(name = "total_positive_drop") val totalPositiveDrop: Double,
     @NonNull @ColumnInfo(name = "total_negative_drop") val totalNegativeDrop: Double,
-    @NonNull @ColumnInfo(name = "coordinates") val coordinates: List<Coordinate>
+    @NonNull @ColumnInfo(name = "coordinates") val coordinates: List<Coordinate>,
+    @NonNull @ColumnInfo(name = "date") var date: Date
 )

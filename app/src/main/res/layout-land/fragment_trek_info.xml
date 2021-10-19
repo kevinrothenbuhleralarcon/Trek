@@ -42,23 +42,46 @@
 
         <TextView
             android:id="@+id/lbl_time_header"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/lbl_time_header_text"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/lbl_date_header"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lbl_time"
             style="@style/text"/>
 
         <TextView
             android:id="@+id/lbl_time"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/lbl_date"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/lbl_time_header"
             tools:text="2:35 h"
             style="@style/text"/>
+
+        <TextView
+            android:id="@+id/lbl_date_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/lbl_time_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lbl_date"
+            style="@style/text"/>
+
+        <TextView
+            android:id="@+id/lbl_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/lbl_date_header"
+            app:layout_constraintStart_toEndOf="@id/lbl_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/divider_time"
+            style="@style/text"
+            tools:text="24.10.2021" />
 
         <View
             android:id="@+id/divider_time"

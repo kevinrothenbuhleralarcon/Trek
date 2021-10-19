@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.TrekListItemBinding
+import ch.kra.trek.helper.TrekUtility
 
 class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, LoadTrekAdapter.LoadTrekViewHolder>(
     DiffCallBack
@@ -27,6 +28,7 @@ class LoadTrekAdapter(private val onclick:(Int) -> Unit): ListAdapter<TrekData, 
     class LoadTrekViewHolder(val binding: TrekListItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(trekData: TrekData) {
             binding.lblTrekName.text = trekData.trekName
+            binding.lblDateList.text = TrekUtility.getDateInStringFormat(trekData.date)
         }
     }
 

@@ -48,7 +48,7 @@ class LoadTrekFragment : Fragment() {
         _binding = null
     }
 
-    
+
 
     private fun displayTrek(trekId: Int){
         val action = LoadTrekFragmentDirections.actionLoadTrekFragmentToTrekInfoFragment(trekId)
