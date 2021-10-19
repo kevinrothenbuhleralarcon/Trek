@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import ch.kra.trek.TrekApplication
 import ch.kra.trek.databinding.FragmentLoadTrekBinding
+import ch.kra.trek.repositories.TrekRepository
 import ch.kra.trek.ui.adapter.LoadTrekAdapter
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 
@@ -19,7 +20,7 @@ class LoadTrekFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TrekViewModel by activityViewModels {
-        TrekViewModel.TrekViewModelFactory((activity?.application as TrekApplication).database.trekDao())
+        TrekViewModel.TrekViewModelFactory(TrekRepository((activity?.application as TrekApplication).database.trekDao()))
     }
 
     override fun onCreateView(
@@ -32,7 +33,6 @@ class LoadTrekFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //(requireActivity() as MainActivity).changeTitle(getString(R.string.load_trek_fragment_title))
         val adapter = LoadTrekAdapter(this::displayTrek)
         binding.recyclerTrekList.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerTrekList.adapter = adapter
@@ -48,7 +48,9 @@ class LoadTrekFragment : Fragment() {
         _binding = null
     }
 
-    fun displayTrek(trekId: Int){
+    
+
+    private fun displayTrek(trekId: Int){
         val action = LoadTrekFragmentDirections.actionLoadTrekFragmentToTrekInfoFragment(trekId)
         findNavController().navigate(action)
     }

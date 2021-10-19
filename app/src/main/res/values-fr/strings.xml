@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Trek</string>
+    <string name="btn_start_trek_text">Commencer une nouvelle randonnée</string>
+    <string name="btn_save_trek_text">Enregistrer</string>
+    <string name="btn_delete_trek_text">Supprimer</string>
+    <string name="btn_end_trek">Fin de la randonnée</string>
+    <string name="lbl_time_header_text">Temps:</string>
+    <string name="lbl_km_header_text">Km:</string>
+    <string name="lbl_max_drop_text">Total dénivelée positive et négative:</string>
+    <string name="lbl_total_drop_text">Dénivelée totale:</string>
+    <string name="dialog_permission_location_title">Permission</string>
+    <string name="dialog_permission_location_message">Cette partie de l\'application nécessite l\'accès au GPS afin d\'afficher le chemin de la randonnée.\nSi vous avez rejeter la permission définitivement, vous devez changer la permission dans les options du téléphone</string>
+    <string name="dialog_gps_disable_title">GPS désactivé</string>
+    <string name="dialog_gps_disable_message">Cette partie de l\'application nécessite l\'accès au GPS afin d\'afficher le chemin de la randonnée.\nMerci de l\'activé avant de continuer</string>
+    <string name="dialog_delete_message">Vous êtes dur le point de supprimer la randonnée actuellement affichée. Cette action est irreversible.\nÊtes vous sûre de vouloir continuer? </string>
+    <string name="dialog_save_title">Sauvegarder la randonnée</string>
+    <string name="dialog_save_message">Merci d\'entrer le nom sous lequel vous voulez enregistrer la randonnée.</string>
+    <string name="toast_save">Le nom de la randonnée ne peut pas être vide</string>
+    <string name="dialog_info_back_title">Randonnée non sauvée</string>
+    <string name="dialog_info_back_message">La randonnée actuellement affichée n\'est pas sauvée.\nSi vous quitter cet écran sans sauvegarder les données seront perdue.\nÊtes vous sûre de vouloir continuer?</string>
+    <string name="default_new_trek_name">Nouvelle randonnée</string>
+    <string name="altitude">Altitude</string>
+    <string name="distance">Distance (km)</string>
+    <string name="your_past_trek">Vos randonnées sauvegardées</string>
+    <string name="settings">Options</string>
+    <string name="load_trek_fragment_title">Vos randonnées sauvegardées</string>
+    <string name="trek_fragment_title">Nouvelle randonnée</string>
+    <string name="settings_fragment_title">Options</string>
+    <string name="map_type">Type de carte:</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annuler</string>
+    <string name="save">Enregistrer</string>
+    <string name="road">Route</string>
+    <string name="satellite">Satellite</string>
+    <string name="hybrid">Hybride</string>
+    <string name="terrain">Relief</string>
+
+    <string-array name="language_array">
+        <item>Anglais</item>
+        <item>Français</item>
+    </string-array>
+</resources>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+   <item
+        android:id="@+id/trekFragment"
+        android:title="@string/app_name"
+        android:icon="@drawable/ic_notification_trek"
+        />
     <item
         android:id="@+id/loadTrekFragment"
         android:title="@string/your_past_trek"
         android:icon="@drawable/ic_list"
-        />
-    <item
-        android:id="@+id/trekFragment"
-        android:title="@string/app_name"
-        android:icon="@drawable/ic_notification_trek"
         />
     <item
         android:id="@+id/settingsFragment"

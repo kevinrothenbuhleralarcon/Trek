@@ -46,8 +46,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         //setSupportActionBar(binding.toolbar)
-
-        navigateToTrekFragmentIfNeeded(intent)
     }
 
     override fun onSupportNavigateUp(): Boolean {

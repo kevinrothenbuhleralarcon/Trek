@@ -24,8 +24,11 @@ import ch.kra.trek.databinding.FragmentTrekBinding
 import ch.kra.trek.helper.TrekUtility
 import ch.kra.trek.other.Constants
 import ch.kra.trek.other.Constants.MAP_CAMERA_ZOOM
+import ch.kra.trek.other.Constants.MAP_TYPE
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
+import ch.kra.trek.other.Constants.SHARED_PREFERENCES_NAME
+import ch.kra.trek.repositories.TrekRepository
 import ch.kra.trek.services.TrackingService
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
@@ -52,7 +55,7 @@ class TrekFragment : Fragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_permission_location_title))
                     .setMessage(getString(R.string.dialog_permission_location_message))
-                    .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ ->
+                    .setNeutralButton(getString(R.string.ok)) { _, _ ->
                         activity?.onBackPressed()
                     }
                     .show()
@@ -60,7 +63,7 @@ class TrekFragment : Fragment() {
         }
 
     private val viewModel: TrekViewModel by activityViewModels {
-        TrekViewModel.TrekViewModelFactory((activity?.application as TrekApplication).database.trekDao())
+        TrekViewModel.TrekViewModelFactory(TrekRepository((activity?.application as TrekApplication).database.trekDao()))
     }
 
     private var map: GoogleMap? = null
@@ -85,10 +88,11 @@ class TrekFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkPermissions()
+        val sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         binding.trekMapView.onCreate(savedInstanceState)
         binding.trekMapView.getMapAsync {
             map = it
-            map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            map?.mapType = TrekUtility.getMapTypeFromBtnId(sharedPreferences.getInt(MAP_TYPE, -1))
         }
         setupGraph()
         subscribeToObservers()
@@ -187,7 +191,7 @@ class TrekFragment : Fragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_gps_disable_title))
                     .setMessage(getString(R.string.dialog_gps_disable_message))
-                    .setNeutralButton(getString(R.string.dialog_gps_disable_btn_neutral_text)) { _, _ -> }
+                    .setNeutralButton(getString(R.string.ok)) { _, _ -> }
                     .show()
             }
         }
@@ -313,7 +317,7 @@ class TrekFragment : Fragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_permission_location_title))
                     .setMessage(getString(R.string.dialog_permission_location_message))
-                    .setNeutralButton(getString(R.string.dialog_permission_location_btn_neutral_text)) { _, _ ->
+                    .setNeutralButton(getString(R.string.ok)) { _, _ ->
                         permissionLauncher.launch(
                             arrayOf(
                                 Manifest.permission.ACCESS_COARSE_LOCATION,

@@ -1,9 +1,11 @@
 package ch.kra.trek.ui.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -20,8 +22,11 @@ import ch.kra.trek.database.Coordinate
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.databinding.FragmentTrekInfoBinding
 import ch.kra.trek.helper.TrekUtility
+import ch.kra.trek.other.Constants.MAP_TYPE
 import ch.kra.trek.other.Constants.POLYLINE_COLOR
 import ch.kra.trek.other.Constants.POLYLINE_WIDTH
+import ch.kra.trek.other.Constants.SHARED_PREFERENCES_NAME
+import ch.kra.trek.repositories.TrekRepository
 import ch.kra.trek.ui.viewmodels.TrekViewModel
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -47,7 +52,7 @@ class TrekInfoFragment : Fragment() {
     private var map: GoogleMap? = null
 
     private val viewModel: TrekViewModel by activityViewModels {
-        TrekViewModel.TrekViewModelFactory((activity?.application as TrekApplication).database.trekDao())
+        TrekViewModel.TrekViewModelFactory(TrekRepository((activity?.application as TrekApplication).database.trekDao()))
     }
 
     private var trekId: Int = 0
@@ -64,17 +69,17 @@ class TrekInfoFragment : Fragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.dialog_info_back_title))
                     .setMessage(getString(R.string.dialog_info_back_message))
-                    .setPositiveButton(getString(R.string.dialog_info_back_btn_positive_text)) { _, _ ->
+                    .setPositiveButton(getString(R.string.yes)) { _, _ ->
                         this.remove() //remove this callback as we need to perform the backPressed action
-                        val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToLoadTrekFragment()
+                        val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToTrekFragment()
                         findNavController().navigate(action)
                     }
-                    .setNegativeButton(R.string.dialog_info_back_btn_negative_text) { _, _ -> }
+                    .setNegativeButton(R.string.no) { _, _ -> }
                     .show()
             } else {
                 this.remove()
                 if (trekId == 0) {
-                    val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToLoadTrekFragment()
+                    val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToTrekFragment()
                     findNavController().navigate(action)
                 } else {
                     requireActivity().onBackPressed()
@@ -94,11 +99,11 @@ class TrekInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         trekId = navigationArgs.trekId
-
+        val sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         binding.infoMapView.onCreate(savedInstanceState)
         binding.infoMapView.getMapAsync {
             map = it
-            map?.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            map?.mapType = TrekUtility.getMapTypeFromBtnId(sharedPreferences.getInt(MAP_TYPE, -1))
             subscribeToObserver()
         }
 
@@ -113,6 +118,14 @@ class TrekInfoFragment : Fragment() {
         }
 
         setupGraph()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            requireActivity().onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -181,8 +194,8 @@ class TrekInfoFragment : Fragment() {
             .setMessage(getString(R.string.dialog_save_message))
             .setCancelable(false)
             .setView(editText)
-            .setPositiveButton(getString(R.string.dialog_save_btn_positive_text)) { _, _ ->}
-            .setNegativeButton(getString(R.string.dialog_save_btn_negative_text)) { _, _ ->}
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->}
+            .setNegativeButton(getString(R.string.cancel)) { _, _ ->}
             .show()
         val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (editText.text.toString() != "") {
@@ -203,17 +216,17 @@ class TrekInfoFragment : Fragment() {
 
     private fun deleteTrek(){
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.dialog_delete_title))
+            .setTitle(getString(R.string.btn_delete_trek_text))
             .setMessage(getString(R.string.dialog_delete_message))
             .setCancelable(false)
-            .setPositiveButton(getString(R.string.dialog_delete_btn_positive_text)) { _, _ ->
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 trek?.let {
                     viewModel.deleteTrek(it)
                 }
                 val action = TrekInfoFragmentDirections.actionTrekInfoFragmentToLoadTrekFragment()
                 findNavController().navigate(action)
             }
-            .setNegativeButton(getString(R.string.dialog_delete_btn_negative_text)) { _, _ -> }
+            .setNegativeButton(getString(R.string.no)) { _, _ -> }
             .show()
     }
 
@@ -285,6 +298,5 @@ class TrekInfoFragment : Fragment() {
     {
         val title = trek?.let { it.trekName } ?: getString(R.string.default_new_trek_name)
         (activity as AppCompatActivity).supportActionBar?.title = title
-        //(requireActivity() as MainActivity).changeTitle(title)
     }
 }

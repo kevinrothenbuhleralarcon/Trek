@@ -21,4 +21,11 @@ object Constants {
     const val POLYLINE_WIDTH = 8f
 
     const val EARTH_RADIUS = 6371e3
+
+    const val SHARED_PREFERENCES_NAME = "trekSharedPref"
+    const val MAP_TYPE = "MAP_TYPE"
+    const val ROAD = "ROAD"
+    const val SATELLITE = "SATELLITE"
+    const val HYBRID = "HYBRID"
+    const val TERRAIN = "TERRAIN"
 }

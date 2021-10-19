@@ -1,11 +1,8 @@
 <resources>
     <string name="app_name">Trek</string>
     <string name="btn_start_trek_text">Start new trek</string>
-    <string name="continue_trek">Resume trek</string>
-    <string name="btn_load_trek_text">Load trek</string>
-    <string name="btn_save_trek_text">Save trek</string>
-    <string name="btn_delete_trek_text">Delete Trek</string>
-    <string name="btn_start_text">Start</string>
+    <string name="btn_save_trek_text">Save</string>
+    <string name="btn_delete_trek_text">Delete</string>
     <string name="btn_end_trek">End trek</string>
     <string name="lbl_time_header_text">Time:</string>
     <string name="lbl_km_header_text">Km:</string>
@@ -13,27 +10,14 @@
     <string name="lbl_total_drop_text">Total drop:</string>
     <string name="dialog_permission_location_title">Permission</string>
     <string name="dialog_permission_location_message">This part of the app require access to the GPS in order to display the path of the trek.\nIf you have permanently denied this permission you have to change it in the phone settings.</string>
-    <string name="dialog_permission_location_btn_neutral_text">Ok</string>
     <string name="dialog_gps_disable_title">GPS off</string>
     <string name="dialog_gps_disable_message">This part of the app require that the GPS is turned on in order to display the path of the trek.\nPlease turn it on prior to continue</string>
-    <string name="dialog_gps_disable_btn_neutral_text">Ok</string>
-    <string name="dialog_delete_title">Delete</string>
     <string name="dialog_delete_message">You are about to delete the currently displayed trek. This action is irreversible.\nAre you sure you want to proceed? </string>
-    <string name="dialog_delete_btn_positive_text">Yes</string>
-    <string name="dialog_delete_btn_negative_text">No</string>
     <string name="dialog_save_title">Save trek</string>
     <string name="dialog_save_message">Please enter the name under which you want to save the trek</string>
-    <string name="dialog_save_btn_positive_text">Ok</string>
-    <string name="dialog_save_btn_negative_text">Cancel</string>
     <string name="toast_save">The trek name cannot be empty</string>
-    <string name="dialog_tracking_back_title">Trek is running</string>
-    <string name="dialog_tracking_back_message">Trek is currently running if you go back it will be cancelled.\nAre you sure you want to continue?</string>
-    <string name="dialog_tracking_back_btn_positive_text">Yes</string>
-    <string name="dialog_tracking_back_btn_negative_text">No</string>
     <string name="dialog_info_back_title">Trek is unsaved</string>
     <string name="dialog_info_back_message">The trek currently displayed is unsaved.\nIf you go back without saving it all data will be lost.\n\nAre you sure you want to go back?</string>
-    <string name="dialog_info_back_btn_positive_text">Yes</string>
-    <string name="dialog_info_back_btn_negative_text">No</string>
     <string name="default_new_trek_name">New Trek</string>
     <string name="altitude">Altitude</string>
     <string name="distance">Distance (km)</string>
@@ -42,7 +26,16 @@
     <string name="load_trek_fragment_title">Your saved trek</string>
     <string name="trek_fragment_title">New trek</string>
     <string name="settings_fragment_title">Settings</string>
-    <string name="language">Language</string>
+    <string name="map_type">Map type:</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="road">Road</string>
+    <string name="satellite">Satellite</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="terrain">Terrain</string>
     
     <string-array name="language_array">
         <item>English</item>

@@ -5,29 +5,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="8dp"
     tools:context=".ui.fragments.SettingsFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/label_language"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/language"
+        android:text="@string/map_type"
         style="@style/text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/spinner_language"/>
-    <Spinner
-        android:id="@+id/spinner_language"
-        android:layout_width="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/radio_group_map_type"/>
+    <RadioGroup
+        android:id="@+id/radio_group_map_type"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
-        android:spinnerMode="dropdown"
-        android:entries="@array/language_array"
         app:layout_constraintTop_toBottomOf="@id/label_language"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/spinner_item" />
+        app:layout_constraintBottom_toTopOf="@id/btn_save_options">
+
+        <RadioButton
+            android:id="@+id/road_map_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/road"
+            android:buttonTint="@color/white"
+            style="@style/text"/>
+
+        <RadioButton
+            android:id="@+id/satellite_map_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/satellite"
+            android:buttonTint="@color/white"
+            style="@style/text"/>
+
+        <RadioButton
+            android:id="@+id/hybrid_map_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hybrid"
+            android:buttonTint="@color/white"
+            style="@style/text"/>
+
+        <RadioButton
+            android:id="@+id/terrain_map_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/terrain"
+            android:buttonTint="@color/white"
+            style="@style/text"/>
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_save_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        app:layout_constraintTop_toBottomOf="@id/radio_group_map_type"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

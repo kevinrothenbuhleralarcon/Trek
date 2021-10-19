@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loadTrekFragment">
+    app:startDestination="@id/trekFragment">
 
     <action android:id="@+id/action_global_trekFragment"
         app:destination="@id/trekFragment"
@@ -23,13 +23,16 @@
         android:name="ch.kra.trek.ui.fragments.TrekInfoFragment"
         tools:layout="@layout/fragment_trek_info">
         <action
-            android:id="@+id/action_trekInfoFragment_to_loadTrekFragment"
-            app:destination="@id/loadTrekFragment"
+            android:id="@+id/action_trekInfoFragment_to_trekFragment"
+            app:destination="@id/trekFragment"
             app:popUpTo="@id/loadTrekFragment"
             app:popUpToInclusive="true"/>
         <argument
             android:name="trekId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_trekInfoFragment_to_loadTrekFragment"
+            app:destination="@id/loadTrekFragment" />
     </fragment>
     <fragment
         android:id="@+id/trekFragment"

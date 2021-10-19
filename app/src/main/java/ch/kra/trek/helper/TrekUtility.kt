@@ -1,8 +1,10 @@
 package ch.kra.trek.helper
 
+import ch.kra.trek.R
 import ch.kra.trek.database.Coordinate
 import ch.kra.trek.database.TrekData
 import ch.kra.trek.other.Constants.EARTH_RADIUS
+import com.google.android.gms.maps.GoogleMap
 import kotlin.math.*
 
 object TrekUtility {
@@ -28,6 +30,16 @@ object TrekUtility {
 
         val c = 2 * atan2(sqrt(a), sqrt(1-a))
         return EARTH_RADIUS * c
+    }
+
+    fun getMapTypeFromBtnId(id: Int): Int {
+        return when (id) {
+            R.id.road_map_type -> GoogleMap.MAP_TYPE_NORMAL
+            R.id.satellite_map_type -> GoogleMap.MAP_TYPE_SATELLITE
+            R.id.hybrid_map_type -> GoogleMap.MAP_TYPE_HYBRID
+            R.id.terrain_map_type -> GoogleMap.MAP_TYPE_TERRAIN
+            else -> GoogleMap.MAP_TYPE_NORMAL
+        }
     }
 
 
